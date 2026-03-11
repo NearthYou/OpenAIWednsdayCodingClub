@@ -36,48 +36,52 @@ export function GoodsFilterPanel({
         </button>
       </div>
 
-      <div className="filter-summary">
-        <strong>{filteredCount}개</strong>
-        <span>현재 표시 중 / 전체 {totalCount}개</span>
-      </div>
-
-      <div className="filter-group">
-        <h3 className="filter-group__title">판매 방식</h3>
-        <div className="filter-option-list">
-          {GOODS_RELEASE_OPTIONS.map((option) => {
-            const isActive = selectedReleaseTypes.includes(option.value);
-            return (
-              <button
-                key={option.value}
-                className={`filter-option${isActive ? " is-active" : ""}`}
-                type="button"
-                onClick={() => onToggleReleaseType(option.value)}
-              >
-                <span>{option.label}</span>
-                <span>{isActive ? "ON" : "OFF"}</span>
-              </button>
-            );
-          })}
+      <div className="goods-filter-panel__body">
+        <div className="filter-summary">
+          <strong>{filteredCount}개</strong>
+          <span>현재 표시 중 / 전체 {totalCount}개</span>
         </div>
-      </div>
 
-      <div className="filter-group">
-        <h3 className="filter-group__title">출처 유형</h3>
-        <div className="filter-option-list">
-          {SOURCE_TYPE_OPTIONS.map((option) => {
-            const isActive = selectedSourceTypes.includes(option.value);
-            return (
-              <button
-                key={option.value}
-                className={`filter-option${isActive ? " is-active" : ""}`}
-                type="button"
-                onClick={() => onToggleSourceType(option.value)}
-              >
-                <span>{option.label}</span>
-                <span>{isActive ? "ON" : "OFF"}</span>
-              </button>
-            );
-          })}
+        <div className="goods-filter-panel__sections">
+          <div className="filter-group">
+            <h3 className="filter-group__title">판매 방식</h3>
+            <div className="filter-option-list">
+              {GOODS_RELEASE_OPTIONS.map((option) => {
+                const isActive = selectedReleaseTypes.includes(option.value);
+                return (
+                  <button
+                    key={option.value}
+                    className={`filter-option${isActive ? " is-active" : ""}`}
+                    type="button"
+                    onClick={() => onToggleReleaseType(option.value)}
+                  >
+                    <span>{option.label}</span>
+                    <span>{isActive ? "ON" : "OFF"}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="filter-group">
+            <h3 className="filter-group__title">출처 유형</h3>
+            <div className="filter-option-list">
+              {SOURCE_TYPE_OPTIONS.map((option) => {
+                const isActive = selectedSourceTypes.includes(option.value);
+                return (
+                  <button
+                    key={option.value}
+                    className={`filter-option${isActive ? " is-active" : ""}`}
+                    type="button"
+                    onClick={() => onToggleSourceType(option.value)}
+                  >
+                    <span>{option.label}</span>
+                    <span>{isActive ? "ON" : "OFF"}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </aside>

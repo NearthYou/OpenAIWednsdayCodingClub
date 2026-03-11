@@ -79,6 +79,30 @@ export function formatEventTimeRange(startAt: string, endAt?: string) {
   return `${dateLabel} ${timeLabel} - ${endTimeLabel}`;
 }
 
+export function formatCompactEventTimeRange(startAt: string, endAt?: string) {
+  const start = new Date(startAt);
+  const end = endAt ? new Date(endAt) : null;
+
+  const dateLabel = `${start.getMonth() + 1}/${start.getDate()}`;
+  const timeLabel = new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).format(start);
+
+  if (!endAt || !end) {
+    return `${dateLabel} ${timeLabel}`;
+  }
+
+  const endTimeLabel = new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).format(end);
+
+  return `${dateLabel} ${timeLabel}-${endTimeLabel}`;
+}
+
 export function buildCalendarWeeks(monthDate: Date) {
   const firstDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const firstGridDay = new Date(firstDayOfMonth);
