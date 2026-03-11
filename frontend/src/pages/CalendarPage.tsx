@@ -22,6 +22,9 @@ import { filterEvents } from "../utils/event-filters";
 
 interface CalendarPageProps {
   savedSchedules: SavedScheduleItem[];
+  pendingFocusDate: string | null;
+  onClearPendingFocusDate: () => void;
+  onNavigateToCalendar: (dateKey?: string) => void;
   onSaveSchedule: (schedule: SavedScheduleItem) => void;
 }
 
@@ -47,7 +50,13 @@ function getFallbackEventsByMonth(monthKey: string) {
   return fallbackEvents.filter((event) => event.startAt.slice(0, 7) === monthKey);
 }
 
-export function CalendarPage({ savedSchedules, onSaveSchedule }: CalendarPageProps) {
+export function CalendarPage({
+  savedSchedules,
+  pendingFocusDate,
+  onClearPendingFocusDate,
+  onNavigateToCalendar,
+  onSaveSchedule
+}: CalendarPageProps) {
   const [month, setMonth] = useState<Date>(() => getInitialMonth());
   const [selectedDate, setSelectedDate] = useState<string>(() => getDefaultSelectedDate(getInitialMonth()));
   const [searchQuery, setSearchQuery] = useState("");
@@ -144,6 +153,40 @@ export function CalendarPage({ savedSchedules, onSaveSchedule }: CalendarPagePro
     }
   }, [month, monthKey, selectedDate]);
 
+  useEffect(() => {
+    if (!pendingFocusDate) {
+      return;
+    }
+
+    const [year, monthValue, day] = pendingFocusDate.split("-").map(Number);
+
+    if (!year || !monthValue || !day) {
+      onClearPendingFocusDate();
+      return;
+    }
+
+    setMonth(new Date(year, monthValue - 1, 1));
+    setSelectedDate(pendingFocusDate);
+    setSearchQuery("");
+    setSelectedCategories([]);
+    setSelectedSourceTypes([]);
+    setSelectedInterestKeywords([]);
+    onClearPendingFocusDate();
+  }, [onClearPendingFocusDate, pendingFocusDate]);
+
+  useEffect(() => {
+    if (!filteredEvents.length) {
+      return;
+    }
+
+    const hasVisibleEventOnSelectedDate = filteredEvents.some(
+      (event) => getEventDateKey(event) === selectedDate
+    );
+
+    if (!hasVisibleEventOnSelectedDate) {
+      setSelectedDate(getEventDateKey(filteredEvents[0]));
+    }
+  }, [filteredEvents, selectedDate]);
   const selectedDateEvents = filteredEvents.filter(
     (event) => getEventDateKey(event) === selectedDate
   );
@@ -154,6 +197,12 @@ export function CalendarPage({ savedSchedules, onSaveSchedule }: CalendarPagePro
         item={createDetailPageItemFromEvent(selectedEvent)}
         backLabel="캘린더로 돌아가기"
         onBack={() => setSelectedEvent(null)}
+        onNavigateToCalendar={(dateKey) => {
+          setSelectedEvent(null);
+          if (dateKey) {
+            onNavigateToCalendar(dateKey);
+          }
+        }}
         savedSchedules={savedSchedules}
         onSaveSchedule={onSaveSchedule}
       />

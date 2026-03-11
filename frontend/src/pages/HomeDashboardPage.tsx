@@ -29,7 +29,7 @@ interface HomeDashboardPageProps {
   currentUser: AuthUser;
   sessionToken: string;
   savedSchedules: SavedScheduleItem[];
-  onNavigateToCalendar: () => void;
+  onNavigateToCalendar: (dateKey?: string) => void;
   onSaveSchedule: (schedule: SavedScheduleItem) => void;
   onUpdateSubscriptions: (subscriptionKeywordIds: string[]) => Promise<AuthSessionPayload>;
 }
@@ -258,6 +258,7 @@ export function HomeDashboardPage({
         item={selectedDetailItem}
         backLabel="홈 화면으로 돌아가기"
         onBack={() => setSelectedDetailItem(null)}
+        onNavigateToCalendar={onNavigateToCalendar}
         savedSchedules={savedSchedules}
         onSaveSchedule={onSaveSchedule}
       />
@@ -291,7 +292,7 @@ export function HomeDashboardPage({
           </div>
 
           <div className="home-hero__actions">
-            <button className="auth-submit-button" type="button" onClick={onNavigateToCalendar}>
+            <button className="auth-submit-button" type="button" onClick={() => onNavigateToCalendar()}>
               상세 캘린더 보기
             </button>
             <button

@@ -14,6 +14,7 @@ import { buildSavedScheduleItem } from "../utils/saved-schedules";
 interface EventDetailPageProps {
   item: DetailPageItem;
   onBack: () => void;
+  onNavigateToCalendar: (dateKey?: string) => void;
   savedSchedules: SavedScheduleItem[];
   onSaveSchedule: (schedule: SavedScheduleItem) => void;
   backLabel?: string;
@@ -199,6 +200,7 @@ async function copyText(value: string) {
 export function EventDetailPage({
   item,
   onBack,
+  onNavigateToCalendar,
   savedSchedules,
   onSaveSchedule,
   backLabel = "이전 화면으로 돌아가기"
@@ -375,12 +377,12 @@ export function EventDetailPage({
     }
 
     if (isCalendarAdded) {
-      setActionMessage("이미 내 일정에 저장해 두었어요.");
+      onNavigateToCalendar(savedSchedule.dateKey);
       return;
     }
 
     onSaveSchedule(savedSchedule);
-    setActionMessage("상세 캘린더와 마이 페이지 내 일정에 표시했어요.");
+    setActionMessage("상세 캘린더와 마이 페이지 내 일정에 표시했어요. 한 번 더 누르면 상세 캘린더로 이동합니다.");
   }
 
   async function handleCopyLink() {
@@ -517,9 +519,11 @@ export function EventDetailPage({
 
           <div className="detail-action-primary">
             <button className="detail-primary-button" type="button" onClick={handleAddToCalendar}>
-              {isCalendarAdded ? "내 일정에 저장됨" : "내 캘린더 추가"}
+              {isCalendarAdded ? "상세 캘린더에서 보기" : "내 캘린더 추가"}
             </button>
-            <span>저장한 일정은 상세 캘린더 날짜 표시와 마이 페이지의 내 일정 목록에 함께 반영됩니다.</span>
+            <span>
+              저장한 일정은 상세 캘린더 날짜 표시와 마이 페이지의 내 일정 목록에 함께 반영되고, 저장 후에는 바로 해당 날짜로 이동할 수 있습니다.
+            </span>
           </div>
 
           <div className="detail-action-grid">

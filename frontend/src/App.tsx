@@ -48,6 +48,7 @@ export default function App() {
   const [authErrorMessage, setAuthErrorMessage] = useState("");
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
   const [savedSchedules, setSavedSchedules] = useState<SavedScheduleItem[]>(() => readSavedSchedules());
+  const [calendarFocusDate, setCalendarFocusDate] = useState<string | null>(null);
 
   function navigate(nextRoute: AppRoutePath, options?: { replace?: boolean }) {
     const shouldReplace = options?.replace ?? false;
@@ -226,6 +227,14 @@ export default function App() {
     );
   }
 
+  function handleNavigateToCalendar(dateKey?: string) {
+    if (dateKey) {
+      setCalendarFocusDate(dateKey);
+    }
+
+    navigate(APP_ROUTE_PATHS.calendar);
+  }
+
   if (authState === "loading") {
     return <div className="app-loading-screen">덕질 홈을 준비하는 중입니다...</div>;
   }
@@ -266,14 +275,20 @@ export default function App() {
           currentUser={authSession.user}
           sessionToken={authSession.sessionToken}
           savedSchedules={savedSchedules}
-          onNavigateToCalendar={() => navigate(APP_ROUTE_PATHS.calendar)}
+          onNavigateToCalendar={handleNavigateToCalendar}
           onSaveSchedule={handleSaveSchedule}
           onUpdateSubscriptions={handleSubscriptionChange}
         />
       ) : null}
 
       {route === APP_ROUTE_PATHS.calendar ? (
-        <CalendarPage savedSchedules={savedSchedules} onSaveSchedule={handleSaveSchedule} />
+        <CalendarPage
+          savedSchedules={savedSchedules}
+          pendingFocusDate={calendarFocusDate}
+          onClearPendingFocusDate={() => setCalendarFocusDate(null)}
+          onNavigateToCalendar={handleNavigateToCalendar}
+          onSaveSchedule={handleSaveSchedule}
+        />
       ) : null}
 
       {route === APP_ROUTE_PATHS.pageTwo ? <GoodsExplorePage /> : null}
