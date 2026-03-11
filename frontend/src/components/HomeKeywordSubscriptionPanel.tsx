@@ -20,7 +20,7 @@ const keywordImageMap: Record<string, string> = {
     "https://upload.wikimedia.org/wikipedia/en/thumb/7/7f/Honkai_Star_Rail_%28logo%29.png/330px-Honkai_Star_Rail_%28logo%29.png",
   "젠레스 존 제로":
     "https://upload.wikimedia.org/wikipedia/en/thumb/d/d2/Zenless_Zone_Zero_curved_box_logo.svg/330px-Zenless_Zone_Zero_curved_box_logo.svg.png",
-  하츠네미쿠:
+  "하츠네 미쿠":
     "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Hatsune_miku_logo_v3.svg/330px-Hatsune_miku_logo_v3.svg.png",
   원피스:
     "https://upload.wikimedia.org/wikipedia/en/9/90/One_Piece%2C_Volume_61_Cover_%28Japanese%29.jpg",

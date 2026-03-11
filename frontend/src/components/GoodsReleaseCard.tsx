@@ -1,6 +1,7 @@
 import { GOODS_PICKUP_LABELS, GOODS_RELEASE_LABELS } from "../constants/goods-options";
 import { SOURCE_TYPE_LABELS } from "../constants/filter-options";
 import { formatCompactEventTimeRange } from "../utils/date";
+import { getGoodsPhotoPresentation } from "../utils/goods-media";
 import { getThumbnailPresentation } from "../utils/thumbnail";
 import type { GoodsItem } from "../types/goods";
 
@@ -12,10 +13,22 @@ export function GoodsReleaseCard({ item }: GoodsReleaseCardProps) {
   const visibleTags = item.tags.slice(0, 1);
   const hiddenTagCount = Math.max(0, item.tags.length - visibleTags.length);
   const thumbnail = getThumbnailPresentation(item.entityName, item.releaseType);
+  const photo = getGoodsPhotoPresentation(item);
+  const thumbnailClassName = `card-thumbnail goods-card__thumbnail${photo ? " card-thumbnail--photo" : ""}`;
 
   return (
     <article className="goods-card">
-      <div className="card-thumbnail goods-card__thumbnail" style={thumbnail.style}>
+      <div className={thumbnailClassName} style={thumbnail.style}>
+        {photo ? (
+          <img
+            className="card-thumbnail__image"
+            src={photo.src}
+            alt={photo.alt}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            style={{ objectPosition: photo.objectPosition }}
+          />
+        ) : null}
         <div className="card-thumbnail__overlay">
           <span className="card-thumbnail__eyebrow">{item.entityName}</span>
           <strong className="card-thumbnail__initials">{thumbnail.initials}</strong>

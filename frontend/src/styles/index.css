@@ -1475,6 +1475,10 @@ a {
 
 .text-button {
   padding: 10px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 .month-nav {
@@ -1558,6 +1562,36 @@ a {
 .filter-panel {
   background:
     linear-gradient(180deg, rgba(255, 245, 203, 0.82) 0%, rgba(255, 255, 255, 0.97) 18%, rgba(255, 255, 255, 0.97) 100%);
+}
+
+.filter-panel .filter-panel__top {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.filter-panel .filter-panel__top .text-button {
+  align-self: flex-start;
+}
+
+.filter-panel .section-eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+}
+
+.filter-panel .section-title {
+  font-size: 0.95rem;
+  line-height: 1.18;
+  white-space: nowrap;
+}
+
+.filter-summary strong {
+  font-size: 1.04rem;
+}
+
+.filter-summary span {
+  font-size: 0.82rem;
+  line-height: 1.4;
 }
 
 .filter-option {
@@ -2949,6 +2983,14 @@ body {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
+.card-thumbnail__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .card-thumbnail::after {
   position: absolute;
   inset: 0;
@@ -2958,6 +3000,13 @@ body {
   opacity: 0.28;
   content: "";
   pointer-events: none;
+}
+
+.card-thumbnail--photo::after {
+  background:
+    linear-gradient(180deg, rgba(13, 10, 6, 0.08), rgba(13, 10, 6, 0.38)),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.02));
+  opacity: 1;
 }
 
 .card-thumbnail__overlay {
@@ -2988,6 +3037,15 @@ body {
   font-weight: 800;
   letter-spacing: -0.06em;
   color: rgba(72, 44, 0, 0.72);
+}
+
+.card-thumbnail--photo .card-thumbnail__eyebrow {
+  background: rgba(255, 248, 232, 0.72);
+}
+
+.card-thumbnail--photo .card-thumbnail__initials {
+  color: rgba(255, 248, 232, 0.94);
+  text-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
 }
 
 .event-card__thumbnail,
