@@ -10,7 +10,7 @@ const mockEvents = [
     sourceName: "IVE Official",
     sourceType: "official",
     isOfficial: true,
-    tags: ["컴백", "티저", "연예인"]
+    tags: ["컴백", "티저", "공식"]
   },
   {
     id: "event-bluearchive-cafe-2026-03-07",
@@ -20,14 +20,14 @@ const mockEvents = [
     startAt: "2026-03-07T11:00:00+09:00",
     endAt: "2026-03-07T21:00:00+09:00",
     sourceUrl: "https://example.com/bluearchive-cafe",
-    sourceName: "블루 아카이브 공식",
+    sourceName: "블루아카 공식",
     sourceType: "official",
     isOfficial: true,
-    tags: ["콜라보", "카페", "행사"]
+    tags: ["카페", "콜라보", "행사"]
   },
   {
     id: "event-genshin-broadcast-2026-03-11",
-    title: "원신 5.3 업데이트 방송",
+    title: "원신 5.x 업데이트 방송",
     entityName: "원신",
     category: "anime_game",
     startAt: "2026-03-11T20:00:00+09:00",
@@ -36,11 +36,11 @@ const mockEvents = [
     sourceName: "Genshin Impact KR",
     sourceType: "official",
     isOfficial: true,
-    tags: ["업데이트", "방송", "버전 공개"]
+    tags: ["업데이트", "방송", "공식"]
   },
   {
     id: "event-miku-goods-2026-03-14",
-    title: "하츠네 미쿠 봄 시즌 굿즈 발매",
+    title: "하츠네 미쿠 봄 굿즈 발매",
     entityName: "하츠네 미쿠",
     category: "goods_release",
     startAt: "2026-03-14T10:00:00+09:00",
@@ -49,11 +49,11 @@ const mockEvents = [
     sourceName: "Good Smile Online",
     sourceType: "official",
     isOfficial: true,
-    tags: ["굿즈", "예약", "한정판"]
+    tags: ["굿즈", "발매", "예약"]
   },
   {
     id: "event-klee-birthday-2026-03-16",
-    title: "클레 생일 기념 일러스트 공개",
+    title: "원신 캐릭터 생일 일러스트 공개",
     entityName: "원신",
     category: "birthday",
     startAt: "2026-03-16T12:00:00+09:00",
@@ -62,11 +62,11 @@ const mockEvents = [
     sourceName: "Genshin Impact KR",
     sourceType: "official",
     isOfficial: true,
-    tags: ["생일", "캐릭터", "일러스트"]
+    tags: ["생일", "일러스트", "캐릭터"]
   },
   {
     id: "event-ive-fan-screening-2026-03-20",
-    title: "아이브 팬 주최 응원 상영회",
+    title: "아이브 팬 주최 상영회",
     entityName: "아이브",
     category: "fan_event",
     startAt: "2026-03-20T18:30:00+09:00",
@@ -75,24 +75,11 @@ const mockEvents = [
     sourceName: "IVE Fan Union",
     sourceType: "community",
     isOfficial: false,
-    tags: ["팬이벤트", "응원", "상영회"]
-  },
-  {
-    id: "event-bluearchive-fan-fair-2026-03-22",
-    title: "블루아카 팬 교류전",
-    entityName: "블루아카",
-    category: "fan_event",
-    startAt: "2026-03-22T13:00:00+09:00",
-    endAt: "2026-03-22T18:00:00+09:00",
-    sourceUrl: "https://example.com/bluearchive-fan-fair",
-    sourceName: "블루아카 유저 모임",
-    sourceType: "community",
-    isOfficial: false,
-    tags: ["팬이벤트", "교류전", "비공식"]
+    tags: ["팬이벤트", "상영회", "비공식"]
   },
   {
     id: "event-miku-rumor-2026-03-24",
-    title: "하츠네 미쿠 심포니 추가 회차 루머",
+    title: "미쿠 심포니 추가 공연 루머",
     entityName: "하츠네 미쿠",
     category: "anime_game",
     startAt: "2026-03-24T09:00:00+09:00",
@@ -104,147 +91,56 @@ const mockEvents = [
     tags: ["루머", "공연", "추가회차"]
   },
   {
-    id: "event-ive-ticket-open-2026-03-26",
-    title: "아이브 공식 팬콘 티켓 오픈",
-    entityName: "아이브",
+    id: "event-infinite-tour-2026-05-24",
+    title: "인피니트 서울 앙코르 콘서트",
+    entityName: "인피니트",
     category: "artist",
-    startAt: "2026-03-26T20:00:00+09:00",
-    endAt: "2026-03-26T21:00:00+09:00",
-    sourceUrl: "https://example.com/ive-ticket-open",
-    sourceName: "멜론티켓",
+    startAt: "2026-05-24T18:00:00+09:00",
+    endAt: "2026-05-24T21:00:00+09:00",
+    sourceUrl: "https://example.com/infinite-encore-seoul",
+    sourceName: "INFINITE Official",
     sourceType: "official",
     isOfficial: true,
-    tags: ["티켓", "팬콘", "예매"]
+    tags: ["콘서트", "앙코르", "서울"]
   },
   {
-    id: "event-bluearchive-goods-preorder-2026-03-29",
-    title: "블루아카 OST 굿즈 예약 시작",
-    entityName: "블루아카",
-    category: "goods_release",
-    startAt: "2026-03-29T15:00:00+09:00",
-    endAt: "2026-03-29T23:59:00+09:00",
-    sourceUrl: "https://example.com/bluearchive-ost-goods",
-    sourceName: "Yostar Store",
-    sourceType: "official",
-    isOfficial: true,
-    tags: ["굿즈", "예약", "OST"]
-  },
-  {
-    id: "event-lesserafim-showcase-2026-03-12",
-    title: "르세라핌 컴백 쇼케이스 안내 공개",
-    entityName: "르세라핌",
+    id: "event-vixx-live-2026-04-15",
+    title: "빅스 데뷔 기념 라이브 공개",
+    entityName: "빅스",
     category: "artist",
-    startAt: "2026-03-12T18:00:00+09:00",
-    endAt: "2026-03-12T19:30:00+09:00",
-    sourceUrl: "https://example.com/lesserafim-showcase",
-    sourceName: "LE SSERAFIM Official",
+    startAt: "2026-04-15T20:00:00+09:00",
+    endAt: "2026-04-15T21:00:00+09:00",
+    sourceUrl: "https://example.com/vixx-anniversary-live",
+    sourceName: "VIXX Official",
     sourceType: "official",
     isOfficial: true,
-    tags: ["컴백", "쇼케이스", "공식"]
+    tags: ["라이브", "기념", "공식"]
   },
   {
-    id: "event-aespa-pop-up-2026-03-15",
-    title: "에스파 컴백 팝업 스토어 오픈",
-    entityName: "에스파",
+    id: "event-infinite-fancafe-2026-06-08",
+    title: "인피니트 데뷔 기념 팬카페 이벤트",
+    entityName: "인피니트",
+    category: "fan_event",
+    startAt: "2026-06-08T12:00:00+09:00",
+    endAt: "2026-06-08T18:00:00+09:00",
+    sourceUrl: "https://example.com/infinite-fan-cafe-event",
+    sourceName: "INFINITE Fan Union",
+    sourceType: "community",
+    isOfficial: false,
+    tags: ["팬카페", "이벤트", "데뷔기념"]
+  },
+  {
+    id: "event-vixx-lightstick-rumor-2026-07-09",
+    title: "빅스 응원봉 리뉴얼 루머",
+    entityName: "빅스",
     category: "goods_release",
-    startAt: "2026-03-15T11:00:00+09:00",
-    endAt: "2026-03-15T20:00:00+09:00",
-    sourceUrl: "https://example.com/aespa-pop-up-store",
-    sourceName: "SM Town & Store",
-    sourceType: "official",
-    isOfficial: true,
-    tags: ["팝업", "굿즈", "현장 판매"]
-  },
-  {
-    id: "event-starrail-special-program-2026-03-17",
-    title: "붕괴: 스타레일 버전 특별 방송",
-    entityName: "붕괴: 스타레일",
-    category: "anime_game",
-    startAt: "2026-03-17T20:00:00+09:00",
-    endAt: "2026-03-17T21:30:00+09:00",
-    sourceUrl: "https://example.com/starrail-special-program",
-    sourceName: "HoYoverse KR",
-    sourceType: "official",
-    isOfficial: true,
-    tags: ["업데이트", "방송", "쿠폰"]
-  },
-  {
-    id: "event-zenless-cafe-2026-03-19",
-    title: "젠레스 존 제로 콜라보 카페 예약 시작",
-    entityName: "젠레스 존 제로",
-    category: "goods_release",
-    startAt: "2026-03-19T13:00:00+09:00",
-    endAt: "2026-03-19T23:59:00+09:00",
-    sourceUrl: "https://example.com/zenless-cafe",
-    sourceName: "젠레스 존 제로 공식",
-    sourceType: "official",
-    isOfficial: true,
-    tags: ["콜라보", "카페", "예약"]
-  },
-  {
-    id: "event-onepiece-pop-up-2026-03-21",
-    title: "원피스 에그헤드 팝업 전시 오픈",
-    entityName: "원피스",
-    category: "anime_game",
-    startAt: "2026-03-21T10:00:00+09:00",
-    endAt: "2026-03-21T20:00:00+09:00",
-    sourceUrl: "https://example.com/onepiece-pop-up",
-    sourceName: "Toei Animation Store",
-    sourceType: "official",
-    isOfficial: true,
-    tags: ["팝업", "전시", "굿즈"]
-  },
-  {
-    id: "event-conan-special-exhibition-2026-03-23",
-    title: "명탐정 코난 특별전 예매 오픈",
-    entityName: "명탐정 코난",
-    category: "anime_game",
-    startAt: "2026-03-23T14:00:00+09:00",
-    endAt: "2026-03-23T23:59:00+09:00",
-    sourceUrl: "https://example.com/conan-special-exhibition",
-    sourceName: "코난 전시 공식",
-    sourceType: "official",
-    isOfficial: true,
-    tags: ["전시", "예매", "특전"]
-  },
-  {
-    id: "event-demonslayer-exhibition-2026-03-25",
-    title: "귀멸의 칼날 원화전 티켓 오픈",
-    entityName: "귀멸의 칼날",
-    category: "anime_game",
-    startAt: "2026-03-25T11:00:00+09:00",
-    endAt: "2026-03-25T23:59:00+09:00",
-    sourceUrl: "https://example.com/demonslayer-exhibition",
-    sourceName: "Aniplex Plus",
-    sourceType: "official",
-    isOfficial: true,
-    tags: ["원화전", "티켓", "예매"]
-  },
-  {
-    id: "event-pokemon-center-2026-03-27",
-    title: "포켓몬 센터 봄 시즌 굿즈 발매",
-    entityName: "포켓몬",
-    category: "goods_release",
-    startAt: "2026-03-27T10:00:00+09:00",
-    endAt: "2026-03-27T23:59:00+09:00",
-    sourceUrl: "https://example.com/pokemon-center-spring",
-    sourceName: "Pokemon Center Online",
-    sourceType: "official",
-    isOfficial: true,
-    tags: ["굿즈", "시즌 한정", "발매"]
-  },
-  {
-    id: "event-ive-teaser-2026-03-04-dup",
-    title: "아이브 컴백 티저 공개",
-    entityName: "아이브",
-    category: "artist",
-    startAt: "2026-03-04T09:00:00+09:00",
-    endAt: "2026-03-04T10:00:00+09:00",
-    sourceUrl: "https://example.com/ive-comeback-teaser",
-    sourceName: "IVE Official",
-    sourceType: "official",
-    isOfficial: true,
-    tags: ["컴백", "티저", "연예인"]
+    startAt: "2026-07-09T15:00:00+09:00",
+    endAt: "2026-07-09T16:00:00+09:00",
+    sourceUrl: "https://example.com/vixx-lightstick-rumor",
+    sourceName: "팬 커뮤니티 제보",
+    sourceType: "rumor",
+    isOfficial: false,
+    tags: ["루머", "응원봉", "굿즈"]
   }
 ];
 
