@@ -2,9 +2,10 @@ import { useDeferredValue, useEffect, useState } from "react";
 import { fetchGoods, fetchKeywords } from "../api/client";
 import { GoodsFilterPanel } from "../components/GoodsFilterPanel";
 import { GoodsReleaseCard } from "../components/GoodsReleaseCard";
-import { GoodsTimeline } from "../components/GoodsTimeline";
 import { KeywordSubscriptionChips } from "../components/KeywordSubscriptionChips";
 import { SearchBar } from "../components/SearchBar";
+import { GOODS_RELEASE_OPTIONS } from "../constants/goods-options";
+import { SOURCE_TYPE_OPTIONS } from "../constants/filter-options";
 import { fallbackKeywords } from "../data/fallback-data";
 import { fallbackGoods } from "../data/goods-fallback-data";
 import "../styles/goods-explore.css";
@@ -12,6 +13,8 @@ import type { InterestKeyword, SourceType } from "../types/event";
 import type { GoodsItem, GoodsReleaseType } from "../types/goods";
 import { formatMonthLabel, getMonthKey } from "../utils/date";
 import { filterGoods } from "../utils/goods-filters";
+
+const GOODS_PER_PAGE = 6;
 
 function getInitialMonth() {
   const today = new Date();
@@ -26,18 +29,27 @@ function getFallbackGoodsByMonth(monthKey: string) {
   return fallbackGoods.filter((item) => item.startAt.slice(0, 7) === monthKey);
 }
 
+function getAllReleaseTypes() {
+  return GOODS_RELEASE_OPTIONS.map((option) => option.value);
+}
+
+function getAllSourceTypes() {
+  return SOURCE_TYPE_OPTIONS.map((option) => option.value);
+}
+
 export function GoodsExplorePage() {
   const [month, setMonth] = useState<Date>(() => getInitialMonth());
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedReleaseTypes, setSelectedReleaseTypes] = useState<GoodsReleaseType[]>([]);
-  const [selectedSourceTypes, setSelectedSourceTypes] = useState<SourceType[]>([]);
+  const [selectedReleaseTypes, setSelectedReleaseTypes] =
+    useState<GoodsReleaseType[]>(getAllReleaseTypes);
+  const [selectedSourceTypes, setSelectedSourceTypes] =
+    useState<SourceType[]>(getAllSourceTypes);
   const [selectedInterestKeywords, setSelectedInterestKeywords] = useState<string[]>([]);
   const [fetchedGoods, setFetchedGoods] = useState<GoodsItem[]>([]);
   const [filteredGoods, setFilteredGoods] = useState<GoodsItem[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [interestKeywords, setInterestKeywords] = useState<InterestKeyword[]>(fallbackKeywords);
   const [isLoading, setIsLoading] = useState(true);
-  const [isUsingFallback, setIsUsingFallback] = useState(false);
-  const [noticeMessage, setNoticeMessage] = useState("");
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const monthKey = getMonthKey(month);
 
@@ -70,7 +82,6 @@ export function GoodsExplorePage() {
 
     async function loadGoods() {
       setIsLoading(true);
-      setNoticeMessage("");
 
       try {
         const goods = await fetchGoods({ month: monthKey });
@@ -80,15 +91,12 @@ export function GoodsExplorePage() {
         }
 
         setFetchedGoods(goods);
-        setIsUsingFallback(false);
       } catch {
         if (!isMounted) {
           return;
         }
 
         setFetchedGoods(getFallbackGoodsByMonth(monthKey));
-        setIsUsingFallback(true);
-        setNoticeMessage("API 연결에 실패해 굿즈 탐색 페이지는 mock 데이터로 표시 중입니다.");
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -120,9 +128,9 @@ export function GoodsExplorePage() {
     selectedSourceTypes
   ]);
 
-  function handleMonthChange(offset: number) {
-    setMonth((currentMonth) => new Date(currentMonth.getFullYear(), currentMonth.getMonth() + offset, 1));
-  }
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [deferredSearchQuery, monthKey, selectedInterestKeywords, selectedReleaseTypes, selectedSourceTypes]);
 
   function handleReleaseTypeToggle(releaseType: GoodsReleaseType) {
     setSelectedReleaseTypes((current) => toggleArrayItem(current, releaseType));
@@ -136,18 +144,36 @@ export function GoodsExplorePage() {
     setSelectedInterestKeywords((current) => toggleArrayItem(current, keyword));
   }
 
-  function resetFilters() {
-    setSearchQuery("");
-    setSelectedReleaseTypes([]);
-    setSelectedSourceTypes([]);
-    setSelectedInterestKeywords([]);
+  const isAllFiltersSelected =
+    selectedReleaseTypes.length === GOODS_RELEASE_OPTIONS.length &&
+    selectedSourceTypes.length === SOURCE_TYPE_OPTIONS.length;
+
+  function toggleAllFilters() {
+    if (isAllFiltersSelected) {
+      setSelectedReleaseTypes([]);
+      setSelectedSourceTypes([]);
+      return;
+    }
+
+    setSelectedReleaseTypes(getAllReleaseTypes());
+    setSelectedSourceTypes(getAllSourceTypes());
   }
 
   const officialCount = filteredGoods.filter((item) => item.sourceType === "official").length;
   const directOpenCount = filteredGoods.filter((item) => item.releaseType !== "lottery").length;
+  const totalPages = Math.max(1, Math.ceil(filteredGoods.length / GOODS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const pagedGoods = filteredGoods.slice(
+    (safePage - 1) * GOODS_PER_PAGE,
+    safePage * GOODS_PER_PAGE
+  );
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
 
   return (
-    <main className="page-shell">
+    <main className="page-shell goods-page-shell">
       <section className="hero-panel">
         <div className="hero-copy">
           <p className="hero-eyebrow">4번 페이지 / 굿즈 탐색</p>
@@ -195,17 +221,16 @@ export function GoodsExplorePage() {
         onReset={() => setSelectedInterestKeywords([])}
       />
 
-      {noticeMessage ? <div className="notice-banner">{noticeMessage}</div> : null}
-
       <section className="goods-layout">
         <GoodsFilterPanel
           selectedReleaseTypes={selectedReleaseTypes}
           selectedSourceTypes={selectedSourceTypes}
           filteredCount={filteredGoods.length}
           totalCount={fetchedGoods.length}
+          isAllFiltersSelected={isAllFiltersSelected}
           onToggleReleaseType={handleReleaseTypeToggle}
           onToggleSourceType={handleSourceTypeToggle}
-          onReset={resetFilters}
+          onToggleAll={toggleAllFilters}
         />
 
         <section className="panel goods-board">
@@ -213,14 +238,6 @@ export function GoodsExplorePage() {
             <div>
               <p className="section-eyebrow">굿즈 보드</p>
               <h2 className="section-title">{formatMonthLabel(month)} 탐색 결과</h2>
-            </div>
-            <div className="month-nav">
-              <button className="month-nav__button" type="button" onClick={() => handleMonthChange(-1)}>
-                이전
-              </button>
-              <button className="month-nav__button" type="button" onClick={() => handleMonthChange(1)}>
-                다음
-              </button>
             </div>
           </div>
 
@@ -238,19 +255,39 @@ export function GoodsExplorePage() {
 
           {!isLoading && filteredGoods.length ? (
             <div className="goods-grid">
-              {filteredGoods.map((item) => (
+              {pagedGoods.map((item) => (
                 <GoodsReleaseCard key={item.id} item={item} />
               ))}
             </div>
           ) : null}
+
+          {!isLoading && filteredGoods.length > GOODS_PER_PAGE ? (
+            <div className="goods-board__footer">
+              <span className="goods-board__page-status">
+                {safePage} / {totalPages} 페이지
+              </span>
+              <div className="month-nav">
+                <button
+                  className="month-nav__button"
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  disabled={safePage === 1}
+                >
+                  이전
+                </button>
+                <button
+                  className="month-nav__button"
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                  disabled={safePage === totalPages}
+                >
+                  다음
+                </button>
+              </div>
+            </div>
+          ) : null}
         </section>
-
-        <GoodsTimeline items={filteredGoods} isLoading={isLoading} />
       </section>
-
-      {isUsingFallback ? (
-        <div className="goods-footer-note">현재 백엔드 실패 대비 fallback mock 데이터가 활성화되어 있습니다.</div>
-      ) : null}
     </main>
   );
 }
