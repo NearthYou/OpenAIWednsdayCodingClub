@@ -240,9 +240,8 @@ export function CalendarPage({ savedSchedules, onSaveSchedule }: CalendarPagePro
             <strong>{formatMonthLabel(month)}</strong>
           </div>
           <div className="hero-stat-card">
-              <span>표시 일정</span>
-              <strong>{filteredEvents.length}개</strong>
-            </div>
+            <span>표시 일정</span>
+            <strong>{filteredEvents.length}개</strong>
           </div>
         </div>
       </section>
