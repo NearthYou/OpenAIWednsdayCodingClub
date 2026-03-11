@@ -10,7 +10,7 @@ function getSessionToken(request) {
 
 function sendError(response, error) {
   response.status(error.statusCode || 500).json({
-    message: error.message || "Unexpected server error."
+    message: error.message || "서버 오류가 발생했습니다."
   });
 }
 

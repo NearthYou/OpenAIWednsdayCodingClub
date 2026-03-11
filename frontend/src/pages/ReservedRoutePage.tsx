@@ -17,7 +17,7 @@ export function ReservedRoutePage({
         <p className="section-eyebrow">{eyebrow}</p>
         <h1 className="hero-title">{title}</h1>
         <p className="hero-description">{description}</p>
-        <div className="placeholder-page__route-tag">{routeLabel}</div>
+        <div className="placeholder-page__route-tag">라우트: {routeLabel}</div>
       </section>
     </main>
   );

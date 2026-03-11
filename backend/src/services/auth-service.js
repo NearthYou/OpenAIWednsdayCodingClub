@@ -56,19 +56,19 @@ function signup(input = {}) {
   const subscriptionKeywordIds = sanitizeSubscriptionKeywordIds(input.subscriptionKeywordIds);
 
   if (displayName.length < 2) {
-    throw createHttpError(400, "Display name must be at least 2 characters.");
+    throw createHttpError(400, "닉네임은 2자 이상이어야 합니다.");
   }
 
   if (!email.includes("@")) {
-    throw createHttpError(400, "A valid email is required.");
+    throw createHttpError(400, "올바른 이메일 주소를 입력해 주세요.");
   }
 
   if (password.length < 6) {
-    throw createHttpError(400, "Password must be at least 6 characters.");
+    throw createHttpError(400, "비밀번호는 6자 이상이어야 합니다.");
   }
 
   if (findUserByEmail(email)) {
-    throw createHttpError(409, "This email is already registered.");
+    throw createHttpError(409, "이미 가입된 이메일입니다.");
   }
 
   const user = createUser({
@@ -88,7 +88,7 @@ function login(input = {}) {
   const user = findUserByEmail(email);
 
   if (!user || !verifyUserPassword(user, password)) {
-    throw createHttpError(401, "Email or password is incorrect.");
+    throw createHttpError(401, "이메일 또는 비밀번호가 올바르지 않습니다.");
   }
 
   const session = createSession(user.id);
@@ -117,7 +117,7 @@ function requireSessionUser(sessionToken) {
   const sessionPayload = getSessionUser(sessionToken);
 
   if (!sessionPayload) {
-    throw createHttpError(401, "Authentication is required.");
+    throw createHttpError(401, "로그인이 필요합니다.");
   }
 
   return sessionPayload;

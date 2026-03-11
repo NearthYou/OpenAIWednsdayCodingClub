@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { fetchHomeDashboard, searchHomeFeed } from "../api/client";
+import { SOURCE_TYPE_LABELS } from "../constants/filter-options";
 import type { AuthUser } from "../types/auth";
 import type { HomeDashboardPayload, HomeSearchResponse, HomeSearchResultKind } from "../types/home";
 import { formatEventTimeRange, formatShortDateLabel, formatShortDateTime } from "../utils/date";
@@ -11,9 +12,9 @@ interface HomeDashboardPageProps {
 }
 
 const RESULT_KIND_LABELS: Record<HomeSearchResultKind, string> = {
-  article: "Article",
-  schedule: "Schedule",
-  deadline: "Deadline"
+  article: "기사",
+  schedule: "일정",
+  deadline: "마감"
 };
 
 export function HomeDashboardPage({
@@ -44,7 +45,7 @@ export function HomeDashboardPage({
         }
       } catch (error) {
         if (isMounted) {
-          setErrorMessage(error instanceof Error ? error.message : "Failed to load dashboard.");
+          setErrorMessage(error instanceof Error ? error.message : "홈 대시보드를 불러오지 못했습니다.");
         }
       } finally {
         if (isMounted) {
@@ -69,7 +70,7 @@ export function HomeDashboardPage({
       const nextSearchResult = await searchHomeFeed(sessionToken, nextQuery);
       setSearchResult(nextSearchResult);
     } catch (error) {
-      setSearchErrorMessage(error instanceof Error ? error.message : "Search failed.");
+      setSearchErrorMessage(error instanceof Error ? error.message : "검색 결과를 불러오지 못했습니다.");
     } finally {
       setIsSearching(false);
     }
@@ -84,31 +85,31 @@ export function HomeDashboardPage({
     <main className="page-shell home-page">
       <section className="panel home-hero">
         <div className="home-hero__copy">
-          <p className="hero-eyebrow">Main home</p>
-          <h1 className="hero-title">{currentUser.displayName}, your fandom command center.</h1>
+          <p className="hero-eyebrow">메인 홈</p>
+          <h1 className="hero-title">{currentUser.displayName}님을 위한 덕질 홈 대시보드</h1>
           <p className="hero-description">
-            Search the web snapshot, watch your D-day items, and jump into calendar detail from one
-            route. This page owns only the home domain, so merge boundaries stay clear.
+            검색으로 기사와 일정을 빠르게 확인하고, D-day와 캘린더 요약으로 오늘 해야 할 체크를 바로
+            파악할 수 있습니다. 홈 도메인만 분리해서 작업하므로 이후 머지할 때도 경계가 분명합니다.
           </p>
           <div className="home-hero__actions">
             <button className="auth-submit-button" type="button" onClick={onNavigateToCalendar}>
-              Open detailed calendar
+              상세 캘린더 보기
             </button>
           </div>
         </div>
 
         <div className="home-hero__stats">
           <div className="hero-stat-card">
-            <span>Subscriptions</span>
-            <strong>{dashboard?.subscribedKeywords.length ?? 0}</strong>
+            <span>구독 키워드</span>
+            <strong>{dashboard?.subscribedKeywords.length ?? 0}개</strong>
           </div>
           <div className="hero-stat-card">
-            <span>This week</span>
-            <strong>{dashboard?.weekSchedules.length ?? 0} items</strong>
+            <span>이번 주 일정</span>
+            <strong>{dashboard?.weekSchedules.length ?? 0}개</strong>
           </div>
           <div className="hero-stat-card">
-            <span>Next highlight</span>
-            <strong>{dashboard?.nextHighlight || "No upcoming item"}</strong>
+            <span>다음 체크 포인트</span>
+            <strong>{dashboard?.nextHighlight || "예정된 항목이 없습니다"}</strong>
           </div>
         </div>
       </section>
@@ -116,28 +117,32 @@ export function HomeDashboardPage({
       <section className="panel search-composer">
         <div className="search-panel__header">
           <div>
-            <p className="section-eyebrow">Search</p>
-            <h2 className="section-title">Find related articles and schedules</h2>
+            <p className="section-eyebrow">검색</p>
+            <h2 className="section-title">관련 기사와 일정을 함께 찾기</h2>
           </div>
-          <span className="section-helper">Search opens curated web-style results for your fandom keywords.</span>
+          <span className="section-helper">구독 중인 키워드를 기준으로 기사, 일정, 마감 항목을 함께 보여줍니다.</span>
         </div>
 
         <form className="search-composer__form" onSubmit={handleSearchSubmit}>
           <label className="search-input-wrap" htmlFor="dashboard-search">
-            <span className="search-input-wrap__icon">Search</span>
+            <span className="search-input-wrap__icon">검색</span>
             <input
               id="dashboard-search"
               className="search-input"
               type="search"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search a fandom keyword, article, or deadline"
+              placeholder="키워드, 기사, 일정, 마감 항목을 검색해 보세요"
             />
           </label>
           <button className="auth-submit-button search-composer__submit" type="submit" disabled={isSearching}>
-            {isSearching ? "Searching..." : "Search"}
+            {isSearching ? "검색 중..." : "검색"}
           </button>
         </form>
+
+        <div className="search-composer__subcopy">
+          많이 검색된 키워드를 누르면 바로 관련 결과를 불러옵니다.
+        </div>
 
         <div className="trending-keyword-row">
           {(dashboard?.trendingKeywords || []).map((keyword) => (
@@ -162,34 +167,40 @@ export function HomeDashboardPage({
         <section className="panel dashboard-section search-results-section">
           <div className="dashboard-section__header">
             <div>
-              <p className="section-eyebrow">Search results</p>
+              <p className="section-eyebrow">검색 결과</p>
               <h2 className="section-title">
-                {searchResult.query ? `Results for "${searchResult.query}"` : "Suggested results"}
+                {searchResult.query ? `"${searchResult.query}" 검색 결과` : "추천 결과"}
               </h2>
             </div>
-            <span className="section-helper">{searchResult.results.length} cards</span>
+            <span className="section-helper">{searchResult.results.length}개 카드</span>
           </div>
 
-          <div className="search-results-grid">
-            {searchResult.results.map((result) => (
-              <article key={result.id} className="search-result-card">
-                <div className="search-result-card__meta">
-                  <span className={`status-badge status-badge--${result.kind}`}>
-                    {RESULT_KIND_LABELS[result.kind]}
-                  </span>
-                  <span className="category-badge">{result.keywordLabel}</span>
-                </div>
-                <h3 className="event-card__title">{result.title}</h3>
-                <p className="search-result-card__summary">{result.summary}</p>
-                <div className="search-result-card__footer">
-                  <span>{result.referenceAt ? formatShortDateTime(result.referenceAt) : "No date"}</span>
-                  <a href={result.sourceUrl} target="_blank" rel="noreferrer">
-                    {result.sourceName}
-                  </a>
-                </div>
-              </article>
-            ))}
-          </div>
+          {searchResult.results.length ? (
+            <div className="search-results-grid">
+              {searchResult.results.map((result) => (
+                <article key={result.id} className="search-result-card">
+                  <div className="search-result-card__meta">
+                    <span className={`status-badge status-badge--${result.kind}`}>
+                      {RESULT_KIND_LABELS[result.kind]}
+                    </span>
+                    <span className="category-badge">{result.keywordLabel}</span>
+                  </div>
+                  <h3 className="event-card__title">{result.title}</h3>
+                  <p className="search-result-card__summary">{result.summary}</p>
+                  <div className="search-result-card__footer">
+                    <span>{result.referenceAt ? formatShortDateTime(result.referenceAt) : "날짜 정보 없음"}</span>
+                    <a href={result.sourceUrl} target="_blank" rel="noreferrer">
+                      {result.sourceName}
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="state-box state-box--empty">
+              검색 결과가 없습니다. 다른 키워드로 다시 검색해 보세요.
+            </div>
+          )}
 
           {searchResult.relatedKeywords.length ? (
             <div className="related-keyword-list">
@@ -211,7 +222,7 @@ export function HomeDashboardPage({
       {errorMessage ? <div className="notice-banner">{errorMessage}</div> : null}
 
       {isLoading ? (
-        <div className="panel dashboard-loading">Loading your home dashboard...</div>
+        <div className="panel dashboard-loading">홈 대시보드를 불러오는 중입니다...</div>
       ) : null}
 
       {!isLoading && dashboard ? (
@@ -221,9 +232,9 @@ export function HomeDashboardPage({
               <div className="dashboard-section__header">
                 <div>
                   <p className="section-eyebrow">D-day</p>
-                  <h2 className="section-title">Upcoming subscription moments</h2>
+                  <h2 className="section-title">다가오는 구독 일정</h2>
                 </div>
-                <span className="section-helper">{dashboard.dDayItems.length} upcoming</span>
+                <span className="section-helper">{dashboard.dDayItems.length}개 예정</span>
               </div>
 
               <div className="countdown-grid">
@@ -246,10 +257,10 @@ export function HomeDashboardPage({
             <article className="panel dashboard-section">
               <div className="dashboard-section__header">
                 <div>
-                  <p className="section-eyebrow">Closing soon</p>
-                  <h2 className="section-title">Items about to close</h2>
+                  <p className="section-eyebrow">곧 마감</p>
+                  <h2 className="section-title">마감이 임박한 항목</h2>
                 </div>
-                <span className="section-helper">{dashboard.closingSoonItems.length} items</span>
+                <span className="section-helper">{dashboard.closingSoonItems.length}개 항목</span>
               </div>
 
               <div className="deadline-list">
@@ -276,10 +287,10 @@ export function HomeDashboardPage({
             <section className="panel dashboard-section">
               <div className="dashboard-section__header">
                 <div>
-                  <p className="section-eyebrow">Today</p>
-                  <h2 className="section-title">Today's schedule</h2>
+                  <p className="section-eyebrow">오늘</p>
+                  <h2 className="section-title">오늘의 일정</h2>
                 </div>
-                <span className="section-helper">Hidden automatically when there is no item</span>
+                <span className="section-helper">일정이 없으면 이 영역은 표시되지 않습니다</span>
               </div>
 
               <div className="schedule-list">
@@ -287,7 +298,7 @@ export function HomeDashboardPage({
                   <article key={schedule.id} className="schedule-card">
                     <div className="event-card__meta">
                       <span className={`status-badge status-badge--${schedule.sourceType}`}>
-                        {schedule.sourceType}
+                        {SOURCE_TYPE_LABELS[schedule.sourceType]}
                       </span>
                     </div>
                     <h3>{schedule.title}</h3>
@@ -307,10 +318,10 @@ export function HomeDashboardPage({
           <section className="panel dashboard-section">
             <div className="dashboard-section__header">
               <div>
-                <p className="section-eyebrow">This week</p>
-                <h2 className="section-title">Weekly schedule bridge</h2>
+                <p className="section-eyebrow">이번 주</p>
+                <h2 className="section-title">이번 주 일정 요약</h2>
               </div>
-              <span className="section-helper">{dashboard.weekSchedules.length} items</span>
+              <span className="section-helper">{dashboard.weekSchedules.length}개 일정</span>
             </div>
 
             <div className="schedule-list">

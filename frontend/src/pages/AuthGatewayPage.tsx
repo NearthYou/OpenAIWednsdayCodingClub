@@ -72,7 +72,7 @@ export function AuthGatewayPage({
     }
 
     if (signupForm.password !== confirmPassword) {
-      setLocalErrorMessage("Passwords do not match.");
+      setLocalErrorMessage("비밀번호가 서로 일치하지 않습니다.");
       return;
     }
 
@@ -83,25 +83,25 @@ export function AuthGatewayPage({
     <main className="page-shell auth-page">
       <section className="auth-layout">
         <article className="panel auth-sidebar">
-          <p className="hero-eyebrow">Fandom MVP</p>
-          <h1 className="auth-sidebar__title">Main home domain for fans who track every update.</h1>
+          <p className="hero-eyebrow">덕질 일정 MVP</p>
+          <h1 className="auth-sidebar__title">좋아하는 작품과 아티스트의 변화를 한 화면에서 따라가는 홈.</h1>
           <p className="auth-sidebar__description">
-            Sign in first, then move into the personalized home dashboard. The dashboard combines
-            keyword subscriptions, calendar events, search discovery, and deadline tracking.
+            먼저 로그인한 뒤 개인화된 홈 대시보드로 들어갑니다. 홈에서는 구독 키워드, 캘린더 일정,
+            검색 결과, 마감 임박 항목을 한 번에 확인할 수 있습니다.
           </p>
 
           <div className="auth-sidebar__stack">
             <div className="auth-sidebar__card">
-              <span>Search</span>
-              <strong>Articles, schedules, and trends in one search surface</strong>
+              <span>검색</span>
+              <strong>기사, 일정, 인기 키워드를 한 번에 보는 홈 검색</strong>
             </div>
             <div className="auth-sidebar__card">
-              <span>Calendar bridge</span>
-              <strong>D-day, today, and this week all derive from subscribed keywords</strong>
+              <span>캘린더 연동</span>
+              <strong>D-day, 오늘 일정, 이번 주 일정을 구독 키워드 기준으로 연결</strong>
             </div>
             <div className="auth-sidebar__card">
-              <span>Parallel-ready</span>
-              <strong>Home, calendar, placeholders, and my page are split by route</strong>
+              <span>병렬 개발 대응</span>
+              <strong>홈, 캘린더, 페이지2, 페이지3, 마이페이지를 라우트 단위로 분리</strong>
             </div>
           </div>
         </article>
@@ -109,23 +109,23 @@ export function AuthGatewayPage({
         <section className="panel auth-card">
           <div className="auth-card__header">
             <div>
-              <p className="section-eyebrow">Authentication</p>
-              <h2 className="section-title">Join or sign back in</h2>
+              <p className="section-eyebrow">인증</p>
+              <h2 className="section-title">회원가입 또는 로그인</h2>
             </div>
-            <div className="auth-mode-switch" role="tablist" aria-label="Auth mode">
+            <div className="auth-mode-switch" role="tablist" aria-label="인증 모드">
               <button
                 className={mode === "login" ? "is-active" : ""}
                 type="button"
                 onClick={() => setMode("login")}
               >
-                Login
+                로그인
               </button>
               <button
                 className={mode === "signup" ? "is-active" : ""}
                 type="button"
                 onClick={() => setMode("signup")}
               >
-                Sign up
+                회원가입
               </button>
             </div>
           </div>
@@ -133,7 +133,7 @@ export function AuthGatewayPage({
           <form className="auth-form" onSubmit={handleSubmit}>
             {mode === "signup" ? (
               <label className="auth-field">
-                <span>Display name</span>
+                <span>닉네임</span>
                 <input
                   value={signupForm.displayName}
                   onChange={(event) =>
@@ -142,16 +142,17 @@ export function AuthGatewayPage({
                       displayName: event.target.value
                     }))
                   }
-                  placeholder="Your fandom alias"
+                  placeholder="덕질할 때 사용할 이름"
                   required
                 />
               </label>
             ) : null}
 
             <label className="auth-field">
-              <span>Email</span>
+              <span>이메일</span>
               <input
                 type="email"
+                autoComplete={mode === "login" ? "email" : "username"}
                 value={mode === "login" ? loginForm.email : signupForm.email}
                 onChange={(event) =>
                   mode === "login"
@@ -164,16 +165,17 @@ export function AuthGatewayPage({
             </label>
 
             <label className="auth-field">
-              <span>Password</span>
+              <span>비밀번호</span>
               <input
                 type="password"
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
                 value={mode === "login" ? loginForm.password : signupForm.password}
                 onChange={(event) =>
                   mode === "login"
                     ? setLoginForm((current) => ({ ...current, password: event.target.value }))
                     : setSignupForm((current) => ({ ...current, password: event.target.value }))
                 }
-                placeholder="At least 6 characters"
+                placeholder="6자 이상 입력"
                 required
               />
             </label>
@@ -181,18 +183,19 @@ export function AuthGatewayPage({
             {mode === "signup" ? (
               <>
                 <label className="auth-field">
-                  <span>Confirm password</span>
+                  <span>비밀번호 확인</span>
                   <input
                     type="password"
+                    autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(event) => setConfirmPassword(event.target.value)}
-                    placeholder="Repeat your password"
+                    placeholder="비밀번호를 다시 입력"
                     required
                   />
                 </label>
 
                 <div className="auth-field">
-                  <span>Subscription keywords</span>
+                  <span>관심 키워드</span>
                   <div className="auth-keyword-grid">
                     {availableKeywords.map((keyword) => {
                       const isSelected = signupForm.subscriptionKeywordIds.includes(keyword.id);
@@ -219,7 +222,7 @@ export function AuthGatewayPage({
                     })}
                   </div>
                   <small className="auth-field__helper">
-                    If you skip this step, the MVP assigns default fandom keywords.
+                    선택하지 않으면 MVP 기본 관심 키워드가 자동으로 적용됩니다.
                   </small>
                 </div>
               </>
@@ -230,13 +233,13 @@ export function AuthGatewayPage({
             ) : null}
 
             <button className="auth-submit-button" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Working..." : mode === "login" ? "Login to home" : "Create account"}
+              {isSubmitting ? "처리 중..." : mode === "login" ? "홈으로 로그인" : "계정 만들기"}
             </button>
           </form>
 
           <div className="auth-demo-box">
-            <span>Quick demo</span>
-            <strong>`demo@ducking.club` / `demo1234`</strong>
+            <span>빠른 체험 계정</span>
+            <strong>demo@ducking.club / demo1234</strong>
           </div>
         </section>
       </section>

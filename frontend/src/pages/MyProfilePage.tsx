@@ -43,18 +43,18 @@ export function MyProfilePage({ currentUser }: MyProfilePageProps) {
     <main className="page-shell profile-page">
       <section className="profile-grid">
         <article className="panel profile-card">
-          <p className="section-eyebrow">Profile</p>
-          <h1 className="hero-title">{currentUser.displayName}</h1>
+          <p className="section-eyebrow">프로필</p>
+          <h1 className="hero-title">{currentUser.displayName}님</h1>
           <p className="hero-description">{currentUser.email}</p>
           <div className="profile-card__meta">
-            <span>User id</span>
+            <span>사용자 ID</span>
             <strong>{currentUser.id}</strong>
           </div>
         </article>
 
         <article className="panel profile-card">
-          <p className="section-eyebrow">Subscriptions</p>
-          <h2 className="section-title">Keyword set for the home dashboard</h2>
+          <p className="section-eyebrow">구독 키워드</p>
+          <h2 className="section-title">홈 대시보드에 연결된 관심 키워드</h2>
           <div className="related-keyword-list">
             {subscribedKeywords.map((keyword) => (
               <span key={keyword.id} className="keyword-summary-chip">

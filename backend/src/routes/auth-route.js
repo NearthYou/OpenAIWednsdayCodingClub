@@ -9,7 +9,7 @@ function getSessionToken(request) {
 
 function sendError(response, error) {
   response.status(error.statusCode || 500).json({
-    message: error.message || "Unexpected server error."
+    message: error.message || "서버 오류가 발생했습니다."
   });
 }
 
@@ -36,7 +36,7 @@ router.get("/session", (request, response) => {
 
   if (!session) {
     response.status(401).json({
-      message: "Authentication is required."
+      message: "로그인이 필요합니다."
     });
     return;
   }

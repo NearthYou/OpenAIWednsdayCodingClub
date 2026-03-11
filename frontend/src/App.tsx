@@ -125,7 +125,7 @@ export default function App() {
       const session = await loginUser(payload);
       await handleAuthSuccess(session);
     } catch (error) {
-      setAuthErrorMessage(error instanceof Error ? error.message : "Login failed.");
+      setAuthErrorMessage(error instanceof Error ? error.message : "로그인에 실패했습니다.");
     } finally {
       setIsSubmittingAuth(false);
     }
@@ -139,7 +139,7 @@ export default function App() {
       const session = await signupUser(payload);
       await handleAuthSuccess(session);
     } catch (error) {
-      setAuthErrorMessage(error instanceof Error ? error.message : "Sign up failed.");
+      setAuthErrorMessage(error instanceof Error ? error.message : "회원가입에 실패했습니다.");
     } finally {
       setIsSubmittingAuth(false);
     }
@@ -163,7 +163,7 @@ export default function App() {
   }
 
   if (authState === "loading") {
-    return <div className="app-loading-screen">Loading fandom home...</div>;
+    return <div className="app-loading-screen">덕질 홈을 준비하는 중입니다...</div>;
   }
 
   if (authState !== "authenticated" || !authSession) {
@@ -200,9 +200,9 @@ export default function App() {
 
       {route === APP_ROUTE_PATHS.pageThree ? (
         <ReservedRoutePage
-          eyebrow="Reserved route"
-          title="Page 3 placeholder"
-          description="This path stays stable for another teammate. Replace only the page implementation later to avoid merge confusion."
+          eyebrow="분리된 라우트"
+          title="페이지3 준비 중"
+          description="이 경로는 다른 팀원이 작업할 수 있도록 비워 둔 자리입니다. 경로는 유지하고 내부 구현만 교체하면 됩니다."
           routeLabel={APP_ROUTE_PATHS.pageThree}
         />
       ) : null}

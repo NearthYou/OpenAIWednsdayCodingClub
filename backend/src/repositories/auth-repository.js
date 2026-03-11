@@ -14,7 +14,7 @@ const defaultSubscriptionKeywordIds = interestKeywords.slice(0, 2).map((keyword)
 const users = [
   {
     id: "user-demo-fan",
-    displayName: "Demo Fan",
+    displayName: "덕질팬",
     email: "demo@ducking.club",
     passwordHash: hashPassword("demo1234"),
     subscriptionKeywordIds: defaultSubscriptionKeywordIds,
