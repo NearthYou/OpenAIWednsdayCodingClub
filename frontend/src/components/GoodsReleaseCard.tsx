@@ -32,8 +32,18 @@ export function GoodsReleaseCard({ item }: GoodsReleaseCardProps) {
           />
         ) : null}
         <div className="card-thumbnail__overlay">
-          <span className="card-thumbnail__eyebrow">{item.entityName}</span>
-          <strong className="card-thumbnail__initials">{thumbnail.initials}</strong>
+          {!photo && previewImage ? (
+            <div className="card-thumbnail__visual goods-card__thumbnail-visual" aria-hidden="true">
+              <div className="card-thumbnail__preview-shell goods-card__preview-shell">
+                <img className="card-thumbnail__preview" src={previewImage} alt="" loading="lazy" />
+              </div>
+            </div>
+          ) : (
+            <span className="card-thumbnail__eyebrow goods-card__eyebrow-pill">{item.entityName}</span>
+          )}
+          <span className="category-badge goods-card__thumbnail-badge">
+            {GOODS_RELEASE_LABELS[item.releaseType]}
+          </span>
         </div>
       </div>
 
