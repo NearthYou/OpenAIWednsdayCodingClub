@@ -16,7 +16,7 @@ export function EventList({ selectedDate, events, isLoading, onEventSelect }: Ev
         <div>
           <p className="section-eyebrow">선택 날짜 일정</p>
           <h2 className="section-title">{formatDateLabel(selectedDate)}</h2>
-          <p className="section-helper">카드의 상세 보기 버튼으로 3번 페이지에 진입할 수 있습니다.</p>
+          <p className="section-helper">카드의 AI 요약 보기 버튼으로 3번 페이지에 진입할 수 있습니다.</p>
         </div>
         <span className="event-list-panel__count">{events.length}개 일정</span>
       </div>

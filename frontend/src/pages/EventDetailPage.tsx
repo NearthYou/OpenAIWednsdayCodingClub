@@ -19,12 +19,114 @@ function getSummaryPoints(event: EventItem) {
   ];
 }
 
+function getVenueGuide(event: EventItem) {
+  if (event.category === "goods_release") {
+    return "판매처 공식 스토어 또는 예약 오픈 페이지에서 상세 정보를 확인";
+  }
+
+  if (event.category === "birthday") {
+    return "공식 SNS나 게임 내 공지에서 기념 콘텐츠 공개 여부를 확인";
+  }
+
+  if (event.category === "fan_event") {
+    return "팬 커뮤니티 공지 또는 모임 안내 페이지에서 장소와 입장 조건을 확인";
+  }
+
+  if (event.category === "artist") {
+    return event.tags.includes("예매")
+      ? "티켓 오픈 페이지에서 좌석/예매 시간 확인"
+      : "공식 채널 또는 배급/공연 안내 페이지에서 상세 일정 확인";
+  }
+
+  return event.sourceType === "rumor"
+    ? "커뮤니티 제보 기반이라 공식 채널의 추가 공지 확인이 필요"
+    : "공식 방송 또는 행사 안내 페이지에서 세부 시간표 확인";
+}
+
+function getHighlightCards(event: EventItem) {
+  const sourceGuide =
+    event.sourceType === "official"
+      ? "바로 저장해도 되는 일정"
+      : event.sourceType === "community"
+        ? "공식 공지와 함께 비교 확인"
+        : "반드시 공식 채널 재확인";
+
+  const followUpGuide =
+    event.category === "goods_release"
+      ? "판매 링크와 재입고 공지를 같이 체크"
+      : event.category === "fan_event"
+        ? "장소/참가 방식/현장 준비물 체크"
+        : event.category === "birthday"
+          ? "기념 콘텐츠 공개 시간 체크"
+          : "티켓, 후속 공지, 굿즈 연계 일정 체크";
+
+  return [
+    {
+      title: "핵심 일정",
+      value: formatEventTimeRange(event.startAt, event.endAt)
+    },
+    {
+      title: "출처 상태",
+      value: sourceGuide
+    },
+    {
+      title: "팬 체크포인트",
+      value: followUpGuide
+    }
+  ];
+}
+
+function getChecklistItems(event: EventItem) {
+  const reservationGuide =
+    event.tags.includes("예매") || event.tags.includes("예약")
+      ? `${event.tags.find((tag) => tag === "예매" || tag === "예약")} 일정이므로 오픈 시간 전에 대기 동선을 잡아두는 것이 좋습니다.`
+      : event.category === "fan_event"
+        ? "참가 신청 여부와 입장 조건을 먼저 확인하세요."
+        : "별도 예약이 없어도 공지 업데이트를 함께 체크하는 편이 안전합니다.";
+
+  const bonusGuide =
+    event.category === "goods_release"
+      ? "특전, 한정 수량, 배송 일정처럼 판매 조건이 달라질 수 있는 정보를 같이 확인하세요."
+      : event.category === "birthday"
+        ? "생일 일러스트, 축전, 해시태그 이벤트처럼 당일 공개 콘텐츠가 추가될 수 있습니다."
+        : "현장 혜택, 굿즈 동시 오픈, 후속 공지처럼 같은 키워드의 연계 이벤트를 같이 보세요.";
+
+  const verificationGuide =
+    event.sourceType === "official"
+      ? "공식 채널 기준 일정이므로 캘린더 저장 우선순위를 높여도 됩니다."
+      : event.sourceType === "community"
+        ? "팬 커뮤니티 기반 일정이라 공식 채널의 후속 공지를 한 번 더 확인하세요."
+        : "루머 단계라 저장은 하되 알림 문구에 재확인 표시를 남기는 편이 좋습니다.";
+
+  return [
+    { label: "예약 / 응모", value: reservationGuide },
+    { label: "특전 / 추가 정보", value: bonusGuide },
+    { label: "재확인 포인트", value: verificationGuide }
+  ];
+}
+
 function getActionItems(event: EventItem) {
   return [
-    "내 캘린더에 추가",
-    `${event.entityName} 키워드 구독`,
-    "출처 링크 열기",
-    "친구에게 공유"
+    {
+      label: "내 캘린더 추가",
+      description: "선택한 날짜와 키워드 흐름을 그대로 저장"
+    },
+    {
+      label: "좋아요",
+      description: "중요 일정으로 표시하고 다시 보기"
+    },
+    {
+      label: "공유",
+      description: "덕메에게 일정 링크 전달"
+    },
+    {
+      label: "댓글",
+      description: "팬 메모나 체크 포인트 남기기"
+    },
+    {
+      label: `${event.entityName} 구독`,
+      description: "같은 키워드의 후속 일정까지 이어서 보기"
+    }
   ];
 }
 
@@ -43,6 +145,11 @@ function getStatusMessage(event: EventItem) {
 export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
   const summaryPoints = getSummaryPoints(event);
   const actionItems = getActionItems(event);
+  const highlightCards = getHighlightCards(event);
+  const checklistItems = getChecklistItems(event);
+  const primaryAction = actionItems[0];
+  const secondaryActions = actionItems.slice(1, 4);
+  const followUpAction = actionItems[4];
 
   return (
     <main className="page-shell">
@@ -104,7 +211,7 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
             </div>
             <div>
               <dt>장소</dt>
-              <dd>상세 장소 정보는 출처 링크에서 확인 가능</dd>
+              <dd>{getVenueGuide(event)}</dd>
             </div>
           </dl>
 
@@ -135,6 +242,15 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
 
           <p className="detail-summary-copy">{getStatusMessage(event)}</p>
 
+          <div className="detail-highlight-grid">
+            {highlightCards.map((card) => (
+              <div key={card.title} className="detail-highlight-card">
+                <span>{card.title}</span>
+                <strong>{card.value}</strong>
+              </div>
+            ))}
+          </div>
+
           <ul className="detail-summary-list">
             {summaryPoints.map((point) => (
               <li key={point}>{point}</li>
@@ -143,8 +259,14 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
 
           <div className="detail-note-box">
             <p className="section-eyebrow">예약 / 응모 / 특전 정보 정리</p>
-            <strong>현재 데모에서는 출처 기반 일정 요약과 후속 액션 진입을 우선 제공합니다.</strong>
-            <span>다음 단계에서는 상세 장소, 예매 링크, 특전 여부를 API 응답과 연결할 수 있습니다.</span>
+            <div className="detail-checklist">
+              {checklistItems.map((item) => (
+                <div key={item.label} className="detail-checklist-row">
+                  <strong>{item.label}</strong>
+                  <span>{item.value}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </article>
 
@@ -157,15 +279,28 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
           </div>
 
           <p className="detail-action-copy">
-            사용자가 가장 자주 하는 행동을 바로 누를 수 있게 묶었습니다.
+            와이어프레임의 액션 묶음을 그대로 살려서 저장, 반응, 공유 흐름을 한 번에 두었습니다.
           </p>
 
-          <div className="detail-action-list">
-            {actionItems.map((actionItem) => (
-              <button key={actionItem} className="detail-action-button" type="button">
-                {actionItem}
+          <div className="detail-action-primary">
+            <button className="detail-primary-button" type="button">
+              {primaryAction.label}
+            </button>
+            <span>{primaryAction.description}</span>
+          </div>
+
+          <div className="detail-action-grid">
+            {secondaryActions.map((actionItem) => (
+              <button key={actionItem.label} className="detail-action-button" type="button">
+                <strong>{actionItem.label}</strong>
+                <span>{actionItem.description}</span>
               </button>
             ))}
+          </div>
+
+          <div className="detail-action-note">
+            <strong>{followUpAction.label}</strong>
+            <span>{followUpAction.description}</span>
           </div>
         </aside>
       </section>

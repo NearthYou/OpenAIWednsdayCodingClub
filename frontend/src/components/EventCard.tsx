@@ -52,7 +52,7 @@ export function EventCard({ event, onSelect }: EventCardProps) {
             type="button"
             onClick={() => onSelect(event)}
           >
-            상세 보기
+            AI 요약 보기
           </button>
         </div>
       ) : null}
