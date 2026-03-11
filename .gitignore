@@ -7,4 +7,7 @@ frontend/dist
 !.env.example
 .codex-logs
 frontend/.vite
+*-dev.log
+*-direct.log
+*-direct.err.log
 .DS_Store
