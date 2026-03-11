@@ -1,0 +1,2 @@
+# OpenAIWednsdayCodingClub
+VibeCoding Project
