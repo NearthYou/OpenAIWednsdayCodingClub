@@ -1,5 +1,7 @@
+import type { AuthSessionPayload, LoginRequest, SignupRequest } from "../types/auth";
 import type { EventCategory, EventItem, InterestKeyword, SourceType } from "../types/event";
 import type { GoodsItem, GoodsReleaseType } from "../types/goods";
+import type { HomeDashboardPayload, HomeSearchResponse } from "../types/home";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
 
@@ -17,6 +19,28 @@ interface FetchGoodsParams {
   releaseTypes?: GoodsReleaseType[];
   sourceTypes?: SourceType[];
   keywords?: string[];
+}
+
+function createApiUrl(pathname: string) {
+  return `${API_BASE_URL}${pathname}`;
+}
+
+async function requestJson<T>(pathname: string, options: RequestInit = {}): Promise<T> {
+  const response = await fetch(createApiUrl(pathname), options);
+  const payload = (await response.json().catch(() => null)) as { message?: string } | null;
+
+  if (!response.ok) {
+    throw new Error(payload?.message || "Request failed.");
+  }
+
+  return payload as T;
+}
+
+function createSessionHeaders(sessionToken: string, headers: HeadersInit = {}) {
+  return {
+    ...headers,
+    "x-session-token": sessionToken
+  };
 }
 
 function buildEventsQuery(params: FetchEventsParams) {
@@ -66,45 +90,78 @@ function buildGoodsQuery(params: FetchGoodsParams) {
 }
 
 export async function fetchEvents(params: FetchEventsParams): Promise<EventItem[]> {
-  const response = await fetch(`${API_BASE_URL}/api/events?${buildEventsQuery(params)}`);
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch events");
-  }
-
-  const payload = (await response.json()) as { events: EventItem[] };
+  const payload = await requestJson<{ events: EventItem[] }>(`/api/events?${buildEventsQuery(params)}`);
   return payload.events;
 }
 
 export async function fetchEventDetail(id: string): Promise<EventItem> {
-  const response = await fetch(`${API_BASE_URL}/api/events/${id}`);
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch event detail");
-  }
-
-  const payload = (await response.json()) as { event: EventItem };
+  const payload = await requestJson<{ event: EventItem }>(`/api/events/${id}`);
   return payload.event;
 }
 
 export async function fetchGoods(params: FetchGoodsParams): Promise<GoodsItem[]> {
-  const response = await fetch(`${API_BASE_URL}/api/goods?${buildGoodsQuery(params)}`);
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch goods");
-  }
-
-  const payload = (await response.json()) as { goods: GoodsItem[] };
+  const payload = await requestJson<{ goods: GoodsItem[] }>(`/api/goods?${buildGoodsQuery(params)}`);
   return payload.goods;
 }
 
 export async function fetchKeywords(): Promise<InterestKeyword[]> {
-  const response = await fetch(`${API_BASE_URL}/api/keywords`);
+  const payload = await requestJson<{ keywords: InterestKeyword[] }>("/api/keywords");
+  return payload.keywords;
+}
+
+export async function signupUser(payload: SignupRequest): Promise<AuthSessionPayload> {
+  return requestJson<AuthSessionPayload>("/api/auth/signup", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function loginUser(payload: LoginRequest): Promise<AuthSessionPayload> {
+  return requestJson<AuthSessionPayload>("/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchSession(sessionToken: string): Promise<AuthSessionPayload> {
+  return requestJson<AuthSessionPayload>("/api/auth/session", {
+    headers: createSessionHeaders(sessionToken)
+  });
+}
+
+export async function logoutUser(sessionToken: string): Promise<void> {
+  const response = await fetch(createApiUrl("/api/auth/logout"), {
+    method: "POST",
+    headers: createSessionHeaders(sessionToken)
+  });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch keywords");
+    throw new Error("Failed to logout.");
   }
+}
 
-  const payload = (await response.json()) as { keywords: InterestKeyword[] };
-  return payload.keywords;
+export async function fetchHomeDashboard(sessionToken: string): Promise<HomeDashboardPayload> {
+  const payload = await requestJson<{ dashboard: HomeDashboardPayload }>("/api/home/dashboard", {
+    headers: createSessionHeaders(sessionToken)
+  });
+
+  return payload.dashboard;
+}
+
+export async function searchHomeFeed(
+  sessionToken: string,
+  query: string
+): Promise<HomeSearchResponse> {
+  const searchParams = new URLSearchParams();
+  searchParams.set("q", query);
+
+  return requestJson<HomeSearchResponse>(`/api/home/search?${searchParams.toString()}`, {
+    headers: createSessionHeaders(sessionToken)
+  });
 }
