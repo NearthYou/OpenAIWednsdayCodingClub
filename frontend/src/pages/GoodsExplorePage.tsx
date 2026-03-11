@@ -25,6 +25,15 @@ function toggleArrayItem<T>(items: T[], value: T) {
   return items.includes(value) ? items.filter((item) => item !== value) : [...items, value];
 }
 
+function toggleImplicitAllSelection<T>(items: T[], value: T, allValues: T[]) {
+  if (!items.length) {
+    return allValues.filter((item) => item !== value);
+  }
+
+  const nextItems = toggleArrayItem(items, value);
+  return nextItems.length === allValues.length ? [] : nextItems;
+}
+
 function getFallbackGoodsByMonth(monthKey: string) {
   return fallbackGoods.filter((item) => item.startAt.slice(0, 7) === monthKey);
 }
@@ -141,7 +150,13 @@ export function GoodsExplorePage() {
   }
 
   function handleKeywordToggle(keyword: string) {
-    setSelectedInterestKeywords((current) => toggleArrayItem(current, keyword));
+    setSelectedInterestKeywords((current) =>
+      toggleImplicitAllSelection(
+        current,
+        keyword,
+        interestKeywords.map((interestKeyword) => interestKeyword.label)
+      )
+    );
   }
 
   const isAllFiltersSelected =
@@ -176,7 +191,6 @@ export function GoodsExplorePage() {
     <main className="page-shell goods-page-shell">
       <section className="hero-panel">
         <div className="hero-copy">
-          <p className="hero-eyebrow">4번 페이지 / 굿즈 탐색</p>
           <h1 className="hero-title">예약, 현장 판매, 재입고를 한 화면에서 찾는 굿즈 탐색 페이지</h1>
           <p className="hero-description">
             메인 캘린더 구조를 유지하면서도 굿즈 발매 흐름에 맞게 카드형 탐색 화면으로 분리했습니다.

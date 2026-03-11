@@ -1,16 +1,27 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { fetchHomeDashboard, searchHomeFeed } from "../api/client";
 import { HomeKeywordSubscriptionPanel } from "../components/HomeKeywordSubscriptionPanel";
 import { SOURCE_TYPE_LABELS } from "../constants/filter-options";
+import { EventDetailPage } from "./EventDetailPage";
 import type { AuthSessionPayload, AuthUser } from "../types/auth";
 import type {
   HomeDashboardPayload,
+  HomeDdaySummary,
+  HomeScheduleSummary,
+  ClosingSoonSummary,
   HomeSearchResponse,
   HomeSearchResult,
   HomeSearchResultKind,
   HomeSearchSourceScope
 } from "../types/home";
 import { formatEventTimeRange, formatShortDateLabel, formatShortDateTime } from "../utils/date";
+import {
+  createDetailPageItemFromClosingSoon,
+  createDetailPageItemFromHomeDday,
+  createDetailPageItemFromHomeSchedule,
+  createDetailPageItemFromHomeSearchResult,
+  type DetailPageItem
+} from "../utils/detail-page-item";
 
 interface HomeDashboardPageProps {
   currentUser: AuthUser;
@@ -50,6 +61,8 @@ export function HomeDashboardPage({
   const [searchResult, setSearchResult] = useState<HomeSearchResponse | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchErrorMessage, setSearchErrorMessage] = useState("");
+  const [selectedDetailItem, setSelectedDetailItem] = useState<DetailPageItem | null>(null);
+  const searchSectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -122,9 +135,30 @@ export function HomeDashboardPage({
     }
   }
 
+  function openDetailFromSearchResult(result: HomeSearchResult) {
+    setSelectedDetailItem(createDetailPageItemFromHomeSearchResult(result));
+  }
+
+  function openDetailFromDday(item: HomeDdaySummary) {
+    setSelectedDetailItem(createDetailPageItemFromHomeDday(item));
+  }
+
+  function openDetailFromClosingSoon(item: ClosingSoonSummary) {
+    setSelectedDetailItem(createDetailPageItemFromClosingSoon(item));
+  }
+
+  function openDetailFromHomeSchedule(item: HomeScheduleSummary) {
+    setSelectedDetailItem(createDetailPageItemFromHomeSchedule(item));
+  }
+
   function renderSearchResultCard(result: HomeSearchResult) {
     return (
-      <article key={result.id} className="search-result-card">
+      <button
+        key={result.id}
+        className="search-result-card dashboard-card-button"
+        type="button"
+        onClick={() => openDetailFromSearchResult(result)}
+      >
         <div className="search-result-card__meta">
           <span className={`status-badge status-badge--${result.kind}`}>{RESULT_KIND_LABELS[result.kind]}</span>
           <span className="category-badge">{result.keywordLabel}</span>
@@ -136,11 +170,19 @@ export function HomeDashboardPage({
         <p className="search-result-card__summary">{result.summary}</p>
         <div className="search-result-card__footer">
           <span>{result.referenceAt ? formatShortDateTime(result.referenceAt) : "날짜 정보 없음"}</span>
-          <a href={result.sourceUrl} target="_blank" rel="noreferrer">
-            {result.sourceName}
-          </a>
+          <span>{result.sourceName}</span>
         </div>
-      </article>
+      </button>
+    );
+  }
+
+  if (selectedDetailItem) {
+    return (
+      <EventDetailPage
+        item={selectedDetailItem}
+        backLabel="홈 화면으로 돌아가기"
+        onBack={() => setSelectedDetailItem(null)}
+      />
     );
   }
 
@@ -160,6 +202,13 @@ export function HomeDashboardPage({
           <div className="home-hero__actions">
             <button className="auth-submit-button" type="button" onClick={onNavigateToCalendar}>
               상세 캘린더 보기
+            </button>
+            <button
+              className="text-button home-hero__search-button"
+              type="button"
+              onClick={() => searchSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            >
+              검색 화면으로 이동
             </button>
           </div>
         </div>
@@ -189,7 +238,7 @@ export function HomeDashboardPage({
         />
       ) : null}
 
-      <section className="panel search-composer">
+      <section ref={searchSectionRef} className="panel search-composer">
         <div className="search-panel__header">
           <div>
             <p className="section-eyebrow">검색</p>
@@ -318,17 +367,20 @@ export function HomeDashboardPage({
               {dashboard.dDayItems.length ? (
                 <div className="countdown-grid">
                   {dashboard.dDayItems.map((item) => (
-                    <article key={item.id} className="countdown-card">
+                    <button
+                      key={item.id}
+                      className="countdown-card dashboard-card-button"
+                      type="button"
+                      onClick={() => openDetailFromDday(item)}
+                    >
                       <span className="countdown-card__label">{item.ddayLabel}</span>
                       <h3>{item.title}</h3>
                       <p>{item.entityName}</p>
                       <div className="countdown-card__footer">
                         <span>{formatShortDateLabel(item.startAt)}</span>
-                        <a href={item.sourceUrl} target="_blank" rel="noreferrer">
-                          {item.sourceName}
-                        </a>
+                        <span>{item.sourceName}</span>
                       </div>
-                    </article>
+                    </button>
                   ))}
                 </div>
               ) : (
@@ -348,7 +400,12 @@ export function HomeDashboardPage({
               {dashboard.closingSoonItems.length ? (
                 <div className="deadline-list">
                   {dashboard.closingSoonItems.map((item) => (
-                    <article key={item.id} className="deadline-card">
+                    <button
+                      key={item.id}
+                      className="deadline-card dashboard-card-button"
+                      type="button"
+                      onClick={() => openDetailFromClosingSoon(item)}
+                    >
                       <div>
                         <span className="deadline-card__keyword">{item.keywordLabel}</span>
                         <h3>{item.title}</h3>
@@ -356,11 +413,9 @@ export function HomeDashboardPage({
                       <p>{item.summary}</p>
                       <div className="deadline-card__footer">
                         <span>{formatShortDateTime(item.closingAt)}</span>
-                        <a href={item.sourceUrl} target="_blank" rel="noreferrer">
-                          {item.sourceName}
-                        </a>
+                        <span>{item.sourceName}</span>
                       </div>
-                    </article>
+                    </button>
                   ))}
                 </div>
               ) : (
@@ -381,7 +436,12 @@ export function HomeDashboardPage({
 
               <div className="schedule-list">
                 {dashboard.todaySchedules.map((schedule) => (
-                  <article key={schedule.id} className="schedule-card">
+                  <button
+                    key={schedule.id}
+                    className="schedule-card dashboard-card-button"
+                    type="button"
+                    onClick={() => openDetailFromHomeSchedule(schedule)}
+                  >
                     <div className="event-card__meta">
                       <span className={`status-badge status-badge--${schedule.sourceType}`}>
                         {SOURCE_TYPE_LABELS[schedule.sourceType]}
@@ -391,11 +451,9 @@ export function HomeDashboardPage({
                     <p>{schedule.entityName}</p>
                     <div className="schedule-card__footer">
                       <span>{formatEventTimeRange(schedule.startAt, schedule.endAt || undefined)}</span>
-                      <a href={schedule.sourceUrl} target="_blank" rel="noreferrer">
-                        {schedule.sourceName}
-                      </a>
+                      <span>{schedule.sourceName}</span>
                     </div>
-                  </article>
+                  </button>
                 ))}
               </div>
             </section>

@@ -15,8 +15,8 @@ const tabs: Array<{ view: AppView; label: string; description: string; hash: str
   },
   {
     view: "goods",
-    label: "4번 굿즈 탐색",
-    description: "추가 페이지",
+    label: "굿즈 탐색",
+    description: "탐색 페이지",
     hash: "#goods-explore"
   }
 ];
@@ -26,7 +26,7 @@ export function PageTabs({ currentView }: PageTabsProps) {
     <nav className="panel page-tabs" aria-label="페이지 전환">
       <div>
         <p className="section-eyebrow">page map</p>
-        <h2 className="section-title">현재 구조 유지 + 4번 페이지 추가</h2>
+        <h2 className="section-title">현재 구조 유지 + 굿즈 탐색 추가</h2>
       </div>
       <div className="page-tabs__list">
         {tabs.map((tab) => (

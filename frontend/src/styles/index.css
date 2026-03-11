@@ -510,7 +510,15 @@ a {
 }
 
 .home-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   margin-top: 24px;
+}
+
+.home-hero__search-button {
+  min-height: 52px;
+  padding: 0 18px;
 }
 
 .home-hero__stats {
@@ -684,6 +692,11 @@ a {
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 16px;
+}
+
+.keyword-panel__count {
+  display: block;
+  margin-top: 6px;
 }
 
 .dashboard-grid {
@@ -930,10 +943,14 @@ a {
 
 .calendar-layout {
   display: grid;
-  grid-template-columns: 248px minmax(0, 1.7fr) 340px;
+  grid-template-columns: 228px minmax(0, 2.2fr) 316px;
   gap: 18px;
   align-items: stretch;
   margin-top: 22px;
+}
+
+.calendar-page-shell {
+  max-width: 1560px;
 }
 
 .filter-panel,
@@ -1036,7 +1053,7 @@ a {
 
 .calendar-day {
   min-height: 168px;
-  padding: 14px;
+  padding: 16px;
   border: 1px solid rgba(207, 190, 167, 0.8);
   border-radius: 18px;
   background: #fff;
@@ -1285,6 +1302,21 @@ a {
   justify-content: center;
 }
 
+.dashboard-card-button {
+  width: 100%;
+  appearance: none;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.dashboard-card-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-strong);
+  box-shadow: 0 10px 24px rgba(76, 52, 28, 0.08);
+}
+
 .tag-chip {
   background: rgba(207, 105, 69, 0.08);
   color: var(--accent-dark);
@@ -1518,6 +1550,8 @@ a {
 }
 
 .detail-action-panel {
+  display: flex;
+  flex-direction: column;
   background: linear-gradient(180deg, #fbefd9 0%, #f6e3bb 100%);
 }
 
@@ -1575,6 +1609,11 @@ a {
   line-height: 1.55;
 }
 
+.detail-action-button.is-active {
+  border-color: rgba(76, 139, 120, 0.32);
+  background: rgba(255, 255, 255, 0.86);
+}
+
 .detail-action-button:hover {
   border-color: var(--accent);
   background: rgba(255, 255, 255, 0.82);
@@ -1598,13 +1637,26 @@ a {
   line-height: 1.6;
 }
 
+.detail-action-feedback {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--accent-dark);
+  line-height: 1.6;
+}
+
+.detail-link-card--last {
+  margin-top: auto;
+}
+
 @media (max-width: 1260px) {
   .top-control-grid {
     grid-template-columns: 1fr;
   }
 
   .calendar-layout {
-    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-columns: 220px minmax(0, 1fr);
   }
 
   .auth-layout,

@@ -1,12 +1,22 @@
 import { useEffect, useState } from "react";
-import { fetchEventSummary } from "../api/client";
+import { fetchEventDetail, fetchEventSummary } from "../api/client";
 import { CATEGORY_LABELS, SOURCE_TYPE_LABELS } from "../constants/filter-options";
-import { formatEventTimeRange } from "../utils/date";
 import type { EventAiSummary, EventAiSummaryMeta, EventItem } from "../types/event";
+import { formatEventTimeRange } from "../utils/date";
+import type { DetailPageItem } from "../utils/detail-page-item";
 
 interface EventDetailPageProps {
-  event: EventItem;
+  item: DetailPageItem;
   onBack: () => void;
+  backLabel?: string;
+}
+
+function formatDetailTimeRange(startAt: string | null, endAt?: string | null) {
+  if (!startAt) {
+    return "날짜 정보는 외부 링크에서 확인하세요.";
+  }
+
+  return formatEventTimeRange(startAt, endAt || undefined);
 }
 
 function getSummaryPoints(event: EventItem) {
@@ -15,7 +25,7 @@ function getSummaryPoints(event: EventItem) {
   const tagLabel = event.tags.length ? event.tags.map((tag) => `#${tag}`).join(" ") : "관심 키워드 없음";
 
   return [
-    `${event.entityName} 관련 ${categoryLabel} 일정으로, 선택한 날짜에서 바로 확인한 상세 정보입니다.`,
+    `${event.entityName} 관련 ${categoryLabel} 일정으로, 선택한 화면에서 바로 확인한 상세 정보입니다.`,
     `${sourceLabel} 출처인 ${event.sourceName} 기준으로 연결된 일정이라 팬이 확인해야 할 기준점이 명확합니다.`,
     `${tagLabel} 흐름으로 함께 보면 티켓, 굿즈, 후속 이벤트를 놓치지 않기 좋습니다.`
   ];
@@ -107,31 +117,6 @@ function getChecklistItems(event: EventItem) {
   ];
 }
 
-function getActionItems(event: EventItem) {
-  return [
-    {
-      label: "내 캘린더 추가",
-      description: "선택한 날짜와 키워드 흐름을 그대로 저장"
-    },
-    {
-      label: "좋아요",
-      description: "중요 일정으로 표시하고 다시 보기"
-    },
-    {
-      label: "공유",
-      description: "덕메에게 일정 링크 전달"
-    },
-    {
-      label: "댓글",
-      description: "팬 메모나 체크 포인트 남기기"
-    },
-    {
-      label: `${event.entityName} 구독`,
-      description: "같은 키워드의 후속 일정까지 이어서 보기"
-    }
-  ];
-}
-
 function getStatusMessage(event: EventItem) {
   if (event.sourceType === "official") {
     return "공식 채널 기준으로 확인된 일정이라 바로 저장해도 좋은 상태입니다.";
@@ -164,19 +149,168 @@ function buildFallbackSummary(event: EventItem): EventAiSummary {
   };
 }
 
-export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
-  const actionItems = getActionItems(event);
-  const primaryAction = actionItems[0];
-  const secondaryActions = actionItems.slice(1, 4);
-  const followUpAction = actionItems[4];
-  const fallbackSummary = buildFallbackSummary(event);
+function buildGenericSummary(item: DetailPageItem): EventAiSummary {
+  const detailTime = formatDetailTimeRange(item.startAt, item.endAt);
+  const tagText = item.tags.length ? item.tags.map((tag) => `#${tag}`).join(" ") : "관련 태그 없음";
+
+  return {
+    statusMessage: item.summary,
+    summaryPoints: [
+      `${item.entityName} 관련 ${item.typeLabel}입니다. 홈과 캘린더에서 확인한 내용을 먼저 한 화면에 정리했습니다.`,
+      `${item.sourceName} 기준 정보라서 저장, 좋아요, 공유를 먼저 처리한 뒤 마지막에 외부 링크로 이동하면 됩니다.`,
+      `${tagText} 흐름으로 함께 보면 후속 일정이나 연관 공지를 이어서 확인하기 좋습니다.`
+    ],
+    highlightSchedule: detailTime,
+    highlightSourceStatus: `${item.badgeLabel} 기준 정보`,
+    highlightFanCheckpoint: "저장과 공유를 먼저 하고 마지막에 외부 사이트로 이동",
+    reservationGuide: item.startAt
+      ? `${detailTime} 기준으로 일정 시간을 먼저 확인해두세요.`
+      : "날짜와 시간은 맨 아래 외부 링크에서 다시 확인하세요.",
+    bonusGuide: item.summary,
+    verificationGuide: "외부 사이트 연결은 맨 아래에 두었으니, 이 화면에서 필요한 액션을 먼저 마무리하세요."
+  };
+}
+
+function escapeIcsText(value: string) {
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/\r?\n/g, "\\n")
+    .replace(/,/g, "\\,")
+    .replace(/;/g, "\\;");
+}
+
+function toIcsTimestamp(value: string) {
+  return new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+function createIcsFile(item: DetailPageItem, eventData: EventItem | null) {
+  const title = eventData?.title || item.title;
+  const startAt = eventData?.startAt || item.startAt;
+  const endAt =
+    eventData?.endAt ||
+    item.endAt ||
+    (startAt ? new Date(new Date(startAt).getTime() + 60 * 60 * 1000).toISOString() : null);
+  const description = [item.summary, `출처: ${eventData?.sourceName || item.sourceName}`, item.sourceUrl]
+    .filter(Boolean)
+    .join("\n");
+
+  if (!startAt || !endAt) {
+    return null;
+  }
+
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//DucktongSago//Calendar//KO",
+    "BEGIN:VEVENT",
+    `UID:${item.id}@ducktongsago.local`,
+    `DTSTAMP:${toIcsTimestamp(new Date().toISOString())}`,
+    `DTSTART:${toIcsTimestamp(startAt)}`,
+    `DTEND:${toIcsTimestamp(endAt)}`,
+    `SUMMARY:${escapeIcsText(title)}`,
+    `DESCRIPTION:${escapeIcsText(description)}`,
+    `URL:${item.sourceUrl}`,
+    "END:VEVENT",
+    "END:VCALENDAR"
+  ].join("\r\n");
+}
+
+async function copyText(value: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "true");
+  textarea.style.position = "absolute";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+}
+
+export function EventDetailPage({
+  item,
+  onBack,
+  backLabel = "이전 화면으로 돌아가기"
+}: EventDetailPageProps) {
+  const [eventData, setEventData] = useState<EventItem | null>(item.eventData);
+  const [eventError, setEventError] = useState("");
+  const [isEventLoading, setIsEventLoading] = useState(Boolean(item.sourceEventId && !item.eventData));
   const [aiSummary, setAiSummary] = useState<EventAiSummary | null>(null);
   const [summaryMeta, setSummaryMeta] = useState<EventAiSummaryMeta | null>(null);
   const [summaryError, setSummaryError] = useState("");
-  const [isSummaryLoading, setIsSummaryLoading] = useState(true);
+  const [isSummaryLoading, setIsSummaryLoading] = useState(Boolean(item.eventData));
+  const [isLiked, setIsLiked] = useState(false);
+  const [actionMessage, setActionMessage] = useState("");
+  const [isCalendarAdded, setIsCalendarAdded] = useState(false);
+  const [isLinkCopied, setIsLinkCopied] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
+
+    setEventData(item.eventData);
+    setEventError("");
+    setIsLiked(false);
+    setActionMessage("");
+    setIsCalendarAdded(false);
+    setIsLinkCopied(false);
+
+    if (item.eventData || !item.sourceEventId) {
+      setIsEventLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    setIsEventLoading(true);
+
+    async function loadEventDetail() {
+      try {
+        const nextEvent = await fetchEventDetail(item.sourceEventId!);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setEventData(nextEvent);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setEventError(error instanceof Error ? error.message : "상세 일정을 불러오지 못했습니다.");
+      } finally {
+        if (isMounted) {
+          setIsEventLoading(false);
+        }
+      }
+    }
+
+    void loadEventDetail();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [item]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!eventData) {
+      setAiSummary(null);
+      setSummaryMeta(null);
+      setSummaryError("");
+      setIsSummaryLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    const summaryTarget = eventData;
 
     async function loadSummary() {
       setAiSummary(null);
@@ -185,7 +319,7 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
       setIsSummaryLoading(true);
 
       try {
-        const payload = await fetchEventSummary(event.id);
+        const payload = await fetchEventSummary(summaryTarget.id);
 
         if (!isMounted) {
           return;
@@ -213,8 +347,21 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
     return () => {
       isMounted = false;
     };
-  }, [event.id]);
+  }, [eventData]);
 
+  const resolvedTitle = eventData?.title || item.title;
+  const resolvedEntityName = eventData?.entityName || item.entityName;
+  const resolvedTypeLabel = eventData ? CATEGORY_LABELS[eventData.category] : item.typeLabel;
+  const resolvedBadgeVariant = eventData?.sourceType || item.badgeVariant;
+  const resolvedBadgeLabel = eventData ? SOURCE_TYPE_LABELS[eventData.sourceType] : item.badgeLabel;
+  const resolvedSourceName = eventData?.sourceName || item.sourceName;
+  const resolvedSourceUrl = eventData?.sourceUrl || item.sourceUrl;
+  const resolvedStartAt = eventData?.startAt || item.startAt;
+  const resolvedEndAt = eventData?.endAt || item.endAt;
+  const resolvedTags = eventData?.tags.length ? eventData.tags : item.tags;
+  const resolvedVenueGuide = eventData ? getVenueGuide(eventData) : item.venueGuide;
+
+  const fallbackSummary = eventData ? buildFallbackSummary(eventData) : buildGenericSummary(item);
   const activeSummary = aiSummary || fallbackSummary;
   const highlightCards = [
     { title: "핵심 일정", value: activeSummary.highlightSchedule },
@@ -226,45 +373,95 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
     { label: "특전 / 추가 정보", value: activeSummary.bonusGuide },
     { label: "재확인 포인트", value: activeSummary.verificationGuide }
   ];
-  const summaryTone = isSummaryLoading ? "loading" : aiSummary ? "live" : "fallback";
-  const summaryNotice = isSummaryLoading
-    ? "OpenAI가 요약을 생성하는 동안 규칙 기반 요약을 먼저 보여주고 있습니다."
-    : aiSummary && summaryMeta
-      ? `OpenAI ${summaryMeta.model} 응답으로 생성한 요약입니다.`
-      : `${summaryError || "OpenAI 요약을 불러오지 못했습니다."} 규칙 기반 요약을 표시 중입니다.`;
+  const summaryTone = eventData
+    ? isSummaryLoading
+      ? "loading"
+      : aiSummary
+        ? "live"
+        : "fallback"
+    : "fallback";
+  const summaryNotice = !eventData
+    ? isEventLoading
+      ? "상세 캘린더 원본 정보를 불러오는 동안 카드에 담긴 요약을 먼저 보여주고 있습니다."
+      : eventError
+        ? `${eventError} 카드 기준 상세 정보를 먼저 보여주고 있습니다.`
+        : "홈 카드와 검색 결과에 포함된 정보를 기준으로 상세 내용을 먼저 보여주고 있습니다."
+    : isSummaryLoading
+      ? "OpenAI가 요약을 생성하는 동안 규칙 기반 요약을 먼저 보여주고 있습니다."
+      : aiSummary && summaryMeta
+        ? `OpenAI ${summaryMeta.model} 응답으로 생성한 요약입니다.`
+        : `${summaryError || "OpenAI 요약을 불러오지 못했습니다."} 규칙 기반 요약을 표시 중입니다.`;
+
+  function handleToggleLike() {
+    setIsLiked((current) => {
+      const nextValue = !current;
+      setActionMessage(nextValue ? "좋아요 표시를 남겼어요." : "좋아요 표시를 해제했어요.");
+      return nextValue;
+    });
+  }
+
+  function handleAddToCalendar() {
+    const icsFile = createIcsFile(item, eventData);
+
+    if (!icsFile) {
+      setActionMessage("캘린더에 추가할 수 있는 날짜 정보가 아직 부족합니다.");
+      return;
+    }
+
+    const blob = new Blob([icsFile], { type: "text/calendar;charset=utf-8" });
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = downloadUrl;
+    anchor.download = `${resolvedTitle.replace(/[\\/:*?"<>|]/g, "-") || "event"}.ics`;
+    anchor.click();
+    window.URL.revokeObjectURL(downloadUrl);
+
+    setIsCalendarAdded(true);
+    setActionMessage("내 캘린더에 추가할 수 있는 파일을 내려받았어요.");
+  }
+
+  async function handleCopyLink() {
+    try {
+      await copyText(resolvedSourceUrl);
+      setIsLinkCopied(true);
+      setActionMessage("해당 일정 링크를 복사했어요.");
+    } catch {
+      setActionMessage("링크 복사에 실패했어요. 다시 시도해 주세요.");
+    }
+  }
 
   return (
     <main className="page-shell">
       <section className="panel detail-hero-panel">
         <div className="detail-hero-panel__top">
           <button className="text-button" type="button" onClick={onBack}>
-            일정 캘린더로 돌아가기
+            {backLabel}
           </button>
-          <span className="detail-page-badge">Page 3</span>
+          <span className="detail-page-badge">상세 정보</span>
         </div>
 
         <div className="detail-hero-panel__content">
           <div className="detail-hero-copy">
-            <p className="hero-eyebrow">일정 상세 / AI 요약 모달</p>
-            <h1 className="hero-title">{event.title}</h1>
+            <p className="hero-eyebrow">일정 상세</p>
+            <h1 className="hero-title">{resolvedTitle}</h1>
             <p className="hero-description">
-              1번 페이지에서 선택한 일정을 기준으로 출처, 핵심 요약, 다음 액션을 한 화면에서 확인할 수
-              있습니다.
+              홈 화면이나 상세 캘린더에서 선택한 정보를 기준으로 핵심 내용, 저장 액션, 공유 흐름을 한
+              화면에서 정리했습니다.
             </p>
           </div>
 
           <div className="detail-hero-stats">
             <div className="hero-stat-card">
               <span>선택 키워드</span>
-              <strong>{event.entityName}</strong>
+              <strong>{resolvedEntityName}</strong>
             </div>
             <div className="hero-stat-card">
-              <span>출처 유형</span>
-              <strong>{SOURCE_TYPE_LABELS[event.sourceType]}</strong>
+              <span>정보 유형</span>
+              <strong>{resolvedTypeLabel}</strong>
             </div>
             <div className="hero-stat-card">
-              <span>카테고리</span>
-              <strong>{CATEGORY_LABELS[event.category]}</strong>
+              <span>출처 / 상태</span>
+              <strong>{resolvedBadgeLabel}</strong>
             </div>
           </div>
         </div>
@@ -275,39 +472,32 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
           <div className="detail-panel__header">
             <div>
               <p className="section-eyebrow">이벤트 정보</p>
-              <h2 className="section-title">이벤트명 / 날짜 / 장소</h2>
+              <h2 className="section-title">이벤트명 / 날짜 / 안내</h2>
             </div>
-            <span className={`status-badge status-badge--${event.sourceType}`}>
-              {SOURCE_TYPE_LABELS[event.sourceType]}
+            <span className={`status-badge status-badge--${resolvedBadgeVariant}`}>
+              {resolvedBadgeLabel}
             </span>
           </div>
 
           <dl className="detail-info-list">
             <div>
               <dt>이벤트명</dt>
-              <dd>{event.title}</dd>
+              <dd>{resolvedTitle}</dd>
             </div>
             <div>
               <dt>날짜</dt>
-              <dd>{formatEventTimeRange(event.startAt, event.endAt)}</dd>
+              <dd>{formatDetailTimeRange(resolvedStartAt, resolvedEndAt)}</dd>
             </div>
             <div>
-              <dt>장소</dt>
-              <dd>{getVenueGuide(event)}</dd>
+              <dt>안내</dt>
+              <dd>{resolvedVenueGuide}</dd>
             </div>
           </dl>
 
-          <div className="detail-link-card">
-            <p className="section-eyebrow">출처 링크</p>
-            <a href={event.sourceUrl} target="_blank" rel="noreferrer">
-              {event.sourceName}
-            </a>
-          </div>
-
           <div className="detail-status-row">
-            <span className="tag-chip">#{event.entityName}</span>
-            {event.tags.map((tag) => (
-              <span key={`${event.id}-${tag}`} className="tag-chip">
+            <span className="tag-chip">#{resolvedEntityName}</span>
+            {resolvedTags.map((tag) => (
+              <span key={`${item.id}-${tag}`} className="tag-chip">
                 #{tag}
               </span>
             ))}
@@ -321,7 +511,7 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
               <h2 className="section-title">핵심 일정 / 팬이 알아야 할 포인트</h2>
             </div>
             <span className={`detail-ai-badge detail-ai-badge--${summaryTone}`}>
-              {isSummaryLoading ? "생성 중" : aiSummary ? "OpenAI Live" : "Fallback"}
+              {eventData ? (isSummaryLoading ? "생성 중" : aiSummary ? "OpenAI Live" : "Fallback") : "상세 정리"}
             </span>
           </div>
 
@@ -347,10 +537,10 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
           <div className="detail-note-box">
             <p className="section-eyebrow">예약 / 응모 / 특전 정보 정리</p>
             <div className="detail-checklist">
-              {checklistItems.map((item) => (
-                <div key={item.label} className="detail-checklist-row">
-                  <strong>{item.label}</strong>
-                  <span>{item.value}</span>
+              {checklistItems.map((summaryItem) => (
+                <div key={summaryItem.label} className="detail-checklist-row">
+                  <strong>{summaryItem.label}</strong>
+                  <span>{summaryItem.value}</span>
                 </div>
               ))}
             </div>
@@ -366,28 +556,43 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
           </div>
 
           <p className="detail-action-copy">
-            와이어프레임의 액션 묶음을 그대로 살려서 저장, 반응, 공유 흐름을 한 번에 두었습니다.
+            이 화면에서 캘린더 저장, 좋아요, 링크 복사를 먼저 끝낸 뒤 마지막에 외부 사이트로 이동할 수
+            있게 정리했습니다.
           </p>
 
           <div className="detail-action-primary">
-            <button className="detail-primary-button" type="button">
-              {primaryAction.label}
+            <button className="detail-primary-button" type="button" onClick={handleAddToCalendar}>
+              {isCalendarAdded ? "캘린더 추가 완료" : "내 캘린더 추가"}
             </button>
-            <span>{primaryAction.description}</span>
+            <span>선택한 일정 정보를 `.ics` 파일로 내려받아 개인 캘린더에 바로 넣을 수 있습니다.</span>
           </div>
 
           <div className="detail-action-grid">
-            {secondaryActions.map((actionItem) => (
-              <button key={actionItem.label} className="detail-action-button" type="button">
-                <strong>{actionItem.label}</strong>
-                <span>{actionItem.description}</span>
-              </button>
-            ))}
+            <button
+              className={`detail-action-button${isLiked ? " is-active" : ""}`}
+              type="button"
+              onClick={handleToggleLike}
+            >
+              <strong>{isLiked ? "좋아요 완료" : "좋아요"}</strong>
+              <span>중요 일정으로 표시해서 다시 보기 쉽게 남깁니다.</span>
+            </button>
+            <button
+              className={`detail-action-button${isLinkCopied ? " is-active" : ""}`}
+              type="button"
+              onClick={() => void handleCopyLink()}
+            >
+              <strong>{isLinkCopied ? "링크 복사됨" : "공유"}</strong>
+              <span>해당 일정 내용을 확인할 수 있는 링크를 복사합니다.</span>
+            </button>
           </div>
 
-          <div className="detail-action-note">
-            <strong>{followUpAction.label}</strong>
-            <span>{followUpAction.description}</span>
+          {actionMessage ? <div className="detail-action-feedback">{actionMessage}</div> : null}
+
+          <div className="detail-link-card detail-link-card--last">
+            <p className="section-eyebrow">외부 사이트 연결</p>
+            <a href={resolvedSourceUrl} target="_blank" rel="noreferrer">
+              {resolvedSourceName} 바로가기
+            </a>
           </div>
         </aside>
       </section>

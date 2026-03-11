@@ -20,6 +20,9 @@ export function FilterPanel({
   onToggleSourceType,
   onReset
 }: FilterPanelProps) {
+  const isViewingAllCategories = !selectedCategories.length;
+  const isViewingAllSourceTypes = !selectedSourceTypes.length;
+
   return (
     <aside className="panel filter-panel">
       <div className="filter-panel__top">
@@ -28,7 +31,7 @@ export function FilterPanel({
           <h2 className="section-title">조건 조합</h2>
         </div>
         <button className="text-button" type="button" onClick={onReset}>
-          초기화
+          전체 보기
         </button>
       </div>
 
@@ -41,7 +44,7 @@ export function FilterPanel({
         <h3 className="filter-group__title">카테고리</h3>
         <div className="filter-option-list">
           {CATEGORY_OPTIONS.map((option) => {
-            const isActive = selectedCategories.includes(option.value);
+            const isActive = isViewingAllCategories || selectedCategories.includes(option.value);
             return (
               <button
                 key={option.value}
@@ -61,7 +64,7 @@ export function FilterPanel({
         <h3 className="filter-group__title">출처 유형</h3>
         <div className="filter-option-list">
           {SOURCE_TYPE_OPTIONS.map((option) => {
-            const isActive = selectedSourceTypes.includes(option.value);
+            const isActive = isViewingAllSourceTypes || selectedSourceTypes.includes(option.value);
             return (
               <button
                 key={option.value}

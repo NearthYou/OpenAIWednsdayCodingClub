@@ -10,7 +10,8 @@ import type { AuthSessionPayload, LoginRequest, SignupRequest } from "../types/a
 import type { GoodsItem, GoodsReleaseType } from "../types/goods";
 import type { HomeDashboardPayload, HomeSearchResponse } from "../types/home";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "http://localhost:4000" : "");
 
 interface FetchEventsParams {
   month: string;

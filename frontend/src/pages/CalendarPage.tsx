@@ -5,10 +5,12 @@ import { FilterPanel } from "../components/FilterPanel";
 import { KeywordSubscriptionChips } from "../components/KeywordSubscriptionChips";
 import { MonthCalendar } from "../components/MonthCalendar";
 import { SearchBar } from "../components/SearchBar";
+import { CATEGORY_OPTIONS, SOURCE_TYPE_OPTIONS } from "../constants/filter-options";
 import { fallbackEvents, fallbackKeywords } from "../data/fallback-data";
 import { EventDetailPage } from "./EventDetailPage";
 import type { EventCategory, EventItem, InterestKeyword, SourceType } from "../types/event";
 import { getDefaultSelectedDate, getEventDateKey, getMonthKey, formatMonthLabel } from "../utils/date";
+import { createDetailPageItemFromEvent } from "../utils/detail-page-item";
 import { filterEvents } from "../utils/event-filters";
 
 function getInitialMonth() {
@@ -18,6 +20,15 @@ function getInitialMonth() {
 
 function toggleArrayItem<T>(items: T[], value: T) {
   return items.includes(value) ? items.filter((item) => item !== value) : [...items, value];
+}
+
+function toggleImplicitAllSelection<T>(items: T[], value: T, allValues: T[]) {
+  if (!items.length) {
+    return allValues.filter((item) => item !== value);
+  }
+
+  const nextItems = toggleArrayItem(items, value);
+  return nextItems.length === allValues.length ? [] : nextItems;
 }
 
 function getFallbackEventsByMonth(monthKey: string) {
@@ -35,7 +46,6 @@ export function CalendarPage() {
   const [filteredEvents, setFilteredEvents] = useState<EventItem[]>([]);
   const [interestKeywords, setInterestKeywords] = useState<InterestKeyword[]>(fallbackKeywords);
   const [isLoading, setIsLoading] = useState(true);
-  const [isUsingFallback, setIsUsingFallback] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const deferredSearchQuery = useDeferredValue(searchQuery);
@@ -78,14 +88,12 @@ export function CalendarPage() {
         }
 
         setFetchedEvents(events);
-        setIsUsingFallback(false);
       } catch {
         if (!isMounted) {
           return;
         }
 
         setFetchedEvents(getFallbackEventsByMonth(monthKey));
-        setIsUsingFallback(true);
         setNoticeMessage("API 연결에 실패해 mock 데이터로 계속 진행 중입니다.");
       } finally {
         if (isMounted) {
@@ -124,12 +132,32 @@ export function CalendarPage() {
     }
   }, [month, monthKey, selectedDate]);
 
+  useEffect(() => {
+    if (!filteredEvents.length) {
+      return;
+    }
+
+    const hasVisibleEventOnSelectedDate = filteredEvents.some(
+      (event) => getEventDateKey(event) === selectedDate
+    );
+
+    if (!hasVisibleEventOnSelectedDate) {
+      setSelectedDate(getEventDateKey(filteredEvents[0]));
+    }
+  }, [filteredEvents, selectedDate]);
+
   const selectedDateEvents = filteredEvents.filter(
     (event) => getEventDateKey(event) === selectedDate
   );
 
   if (selectedEvent) {
-    return <EventDetailPage event={selectedEvent} onBack={() => setSelectedEvent(null)} />;
+    return (
+      <EventDetailPage
+        item={createDetailPageItemFromEvent(selectedEvent)}
+        backLabel="상세 캘린더로 돌아가기"
+        onBack={() => setSelectedEvent(null)}
+      />
+    );
   }
 
   function handleMonthChange(offset: number) {
@@ -137,15 +165,33 @@ export function CalendarPage() {
   }
 
   function handleCategoryToggle(category: EventCategory) {
-    setSelectedCategories((current) => toggleArrayItem(current, category));
+    setSelectedCategories((current) =>
+      toggleImplicitAllSelection(
+        current,
+        category,
+        CATEGORY_OPTIONS.map((option) => option.value)
+      )
+    );
   }
 
   function handleSourceTypeToggle(sourceType: SourceType) {
-    setSelectedSourceTypes((current) => toggleArrayItem(current, sourceType));
+    setSelectedSourceTypes((current) =>
+      toggleImplicitAllSelection(
+        current,
+        sourceType,
+        SOURCE_TYPE_OPTIONS.map((option) => option.value)
+      )
+    );
   }
 
   function handleKeywordToggle(keyword: string) {
-    setSelectedInterestKeywords((current) => toggleArrayItem(current, keyword));
+    setSelectedInterestKeywords((current) =>
+      toggleImplicitAllSelection(
+        current,
+        keyword,
+        interestKeywords.map((interestKeyword) => interestKeyword.label)
+      )
+    );
   }
 
   function resetFilters() {
@@ -156,10 +202,9 @@ export function CalendarPage() {
   }
 
   return (
-    <main className="page-shell">
+    <main className="page-shell calendar-page-shell">
       <section className="hero-panel">
         <div className="hero-copy">
-          <p className="hero-eyebrow">덕후 일정 통합 플랫폼 MVP</p>
           <h1 className="hero-title">공식 일정부터 팬 이벤트까지 한 화면에서 보는 일정 캘린더</h1>
           <p className="hero-description">
             관심 키워드, 검색어, 출처 유형을 조합해서 월간 일정과 선택 날짜 리스트를 동시에 확인할 수 있습니다.
@@ -174,10 +219,6 @@ export function CalendarPage() {
           <div className="hero-stat-card">
             <span>표시 일정</span>
             <strong>{filteredEvents.length}개</strong>
-          </div>
-          <div className="hero-stat-card">
-            <span>데이터 모드</span>
-            <strong>{isUsingFallback ? "Mock Fallback" : "API Live"}</strong>
           </div>
         </div>
       </section>
