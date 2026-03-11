@@ -1,5 +1,6 @@
 const { interestKeywords } = require("../data/interest-keywords");
 const {
+  completeUserOnboarding,
   createSession,
   createUser,
   deleteSession,
@@ -10,6 +11,7 @@ const {
   updateUserSubscriptionKeywordIds,
   verifyUserPassword
 } = require("../repositories/auth-repository");
+const { normalizeSeedKeywordIds, recommendKeywords } = require("./keyword-recommendation-service");
 
 function createHttpError(statusCode, message) {
   const error = new Error(message);
@@ -39,7 +41,10 @@ function sanitizeUser(user) {
     id: user.id,
     displayName: user.displayName,
     email: user.email,
+    preferenceKeywordIds: [...(user.preferenceKeywordIds || [])],
     subscriptionKeywordIds: [...user.subscriptionKeywordIds],
+    hasCompletedOnboarding: Boolean(user.hasCompletedOnboarding),
+    onboardingCompletedAt: user.onboardingCompletedAt || null,
     createdAt: user.createdAt
   };
 }
@@ -55,7 +60,9 @@ function signup(input = {}) {
   const displayName = String(input.displayName || "").trim();
   const email = String(input.email || "").trim().toLowerCase();
   const password = String(input.password || "");
-  const subscriptionKeywordIds = sanitizeSubscriptionKeywordIds(input.subscriptionKeywordIds);
+  const subscriptionKeywordIds = sanitizeSubscriptionKeywordIds(input.subscriptionKeywordIds, {
+    fallbackToDefault: false
+  });
 
   if (displayName.length < 2) {
     throw createHttpError(400, "닉네임은 2자 이상이어야 합니다.");
@@ -144,6 +151,34 @@ function updateSubscriptionKeywords(sessionToken, input = {}) {
   return buildSessionPayload(currentSession, user);
 }
 
+function completeOnboarding(sessionToken, input = {}) {
+  const currentSession = findSession(sessionToken);
+
+  if (!currentSession) {
+    throw createHttpError(401, "로그인이 필요합니다.");
+  }
+
+  const seedKeywordIds = normalizeSeedKeywordIds(input.seedKeywordIds || input.subscriptionKeywordIds);
+
+  if (seedKeywordIds.length < 3) {
+    throw createHttpError(400, "관심 키워드는 3개 이상 선택해 주세요.");
+  }
+
+  const recommendationResult = recommendKeywords(seedKeywordIds, {
+    limit: 6
+  });
+  const user = completeUserOnboarding(currentSession.userId, {
+    preferenceKeywordIds: seedKeywordIds,
+    subscriptionKeywordIds: recommendationResult.recommendedKeywordIds
+  });
+
+  if (!user) {
+    throw createHttpError(404, "사용자 정보를 찾을 수 없습니다.");
+  }
+
+  return buildSessionPayload(currentSession, user);
+}
+
 function logout(sessionToken) {
   if (!sessionToken) {
     return false;
@@ -158,6 +193,7 @@ module.exports = {
   login,
   logout,
   requireSessionUser,
+  completeOnboarding,
   signup,
   updateSubscriptionKeywords
 };

@@ -1,5 +1,6 @@
 import { startTransition, useEffect, useState } from "react";
 import {
+  completeUserOnboarding,
   fetchSession,
   loginUser,
   logoutUser,
@@ -12,6 +13,7 @@ import { AuthGatewayPage } from "./pages/AuthGatewayPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { GoodsExplorePage } from "./pages/GoodsExplorePage";
 import { HomeDashboardPage } from "./pages/HomeDashboardPage";
+import { KeywordOnboardingPage } from "./pages/KeywordOnboardingPage";
 import { MyProfilePage } from "./pages/MyProfilePage";
 import type { AuthSessionPayload, LoginRequest, SignupRequest } from "./types/auth";
 
@@ -177,6 +179,26 @@ export default function App() {
     return nextSession;
   }
 
+  async function handleCompleteOnboarding(seedKeywordIds: string[]) {
+    if (!authSession) {
+      throw new Error("로그인 정보가 없습니다.");
+    }
+
+    setIsSubmittingAuth(true);
+    setAuthErrorMessage("");
+
+    try {
+      const nextSession = await completeUserOnboarding(authSession.sessionToken, seedKeywordIds);
+      setAuthSession(nextSession);
+      navigate(APP_ROUTE_PATHS.home, { replace: true });
+    } catch (error) {
+      setAuthErrorMessage(error instanceof Error ? error.message : "온보딩 저장에 실패했습니다.");
+      throw error;
+    } finally {
+      setIsSubmittingAuth(false);
+    }
+  }
+
   if (authState === "loading") {
     return <div className="app-loading-screen">덕질 홈을 준비하는 중입니다...</div>;
   }
@@ -188,6 +210,17 @@ export default function App() {
         isSubmitting={isSubmittingAuth}
         onLogin={handleLogin}
         onSignup={handleSignup}
+      />
+    );
+  }
+
+  if (!authSession.user.hasCompletedOnboarding) {
+    return (
+      <KeywordOnboardingPage
+        currentUser={authSession.user}
+        isSubmitting={isSubmittingAuth}
+        errorMessage={authErrorMessage}
+        onComplete={handleCompleteOnboarding}
       />
     );
   }

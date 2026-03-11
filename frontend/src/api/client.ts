@@ -4,6 +4,7 @@ import type {
   EventCategory,
   EventItem,
   InterestKeyword,
+  KeywordRecommendation,
   SourceType
 } from "../types/event";
 import type { AuthSessionPayload, LoginRequest, SignupRequest } from "../types/auth";
@@ -133,6 +134,25 @@ export async function fetchKeywords(): Promise<InterestKeyword[]> {
   return payload.keywords;
 }
 
+export async function fetchKeywordRecommendations(
+  seedKeywordIds: string[]
+): Promise<KeywordRecommendation[]> {
+  const payload = await requestJson<{ recommendations: KeywordRecommendation[] }>(
+    "/api/keywords/recommendations",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        seedKeywordIds
+      })
+    }
+  );
+
+  return payload.recommendations;
+}
+
 export async function signupUser(payload: SignupRequest): Promise<AuthSessionPayload> {
   return requestJson<AuthSessionPayload>("/api/auth/signup", {
     method: "POST",
@@ -170,6 +190,21 @@ export async function updateUserSubscriptions(
     }),
     body: JSON.stringify({
       subscriptionKeywordIds
+    })
+  });
+}
+
+export async function completeUserOnboarding(
+  sessionToken: string,
+  seedKeywordIds: string[]
+): Promise<AuthSessionPayload> {
+  return requestJson<AuthSessionPayload>("/api/auth/onboarding", {
+    method: "PATCH",
+    headers: createSessionHeaders(sessionToken, {
+      "Content-Type": "application/json"
+    }),
+    body: JSON.stringify({
+      seedKeywordIds
     })
   });
 }

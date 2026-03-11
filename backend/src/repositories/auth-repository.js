@@ -9,7 +9,7 @@ function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
 
-const defaultSubscriptionKeywordIds = interestKeywords.slice(0, 2).map((keyword) => keyword.id);
+const defaultSubscriptionKeywordIds = interestKeywords.slice(0, 3).map((keyword) => keyword.id);
 
 const users = [
   {
@@ -17,7 +17,10 @@ const users = [
     displayName: "덕질팬",
     email: "demo@ducking.club",
     passwordHash: hashPassword("demo1234"),
-    subscriptionKeywordIds: defaultSubscriptionKeywordIds,
+    preferenceKeywordIds: [],
+    subscriptionKeywordIds: [],
+    hasCompletedOnboarding: false,
+    onboardingCompletedAt: null,
     createdAt: new Date().toISOString()
   }
 ];
@@ -43,7 +46,10 @@ function createUser({ displayName, email, password, subscriptionKeywordIds }) {
     displayName: String(displayName).trim(),
     email: normalizeEmail(email),
     passwordHash: hashPassword(password),
+    preferenceKeywordIds: [],
     subscriptionKeywordIds: [...subscriptionKeywordIds],
+    hasCompletedOnboarding: false,
+    onboardingCompletedAt: null,
     createdAt: new Date().toISOString()
   };
 
@@ -62,6 +68,25 @@ function updateUserSubscriptionKeywordIds(userId, subscriptionKeywordIds) {
 
   return {
     ...user,
+    subscriptionKeywordIds: [...user.subscriptionKeywordIds]
+  };
+}
+
+function completeUserOnboarding(userId, onboardingState) {
+  const user = users.find((currentUser) => currentUser.id === userId);
+
+  if (!user) {
+    return null;
+  }
+
+  user.preferenceKeywordIds = [...(onboardingState.preferenceKeywordIds || [])];
+  user.subscriptionKeywordIds = [...(onboardingState.subscriptionKeywordIds || [])];
+  user.hasCompletedOnboarding = true;
+  user.onboardingCompletedAt = new Date().toISOString();
+
+  return {
+    ...user,
+    preferenceKeywordIds: [...user.preferenceKeywordIds],
     subscriptionKeywordIds: [...user.subscriptionKeywordIds]
   };
 }
@@ -106,6 +131,7 @@ module.exports = {
   getDefaultSubscriptionKeywordIds,
   hashPassword,
   normalizeEmail,
+  completeUserOnboarding,
   updateUserSubscriptionKeywordIds,
   verifyUserPassword
 };

@@ -1,5 +1,6 @@
 const express = require("express");
 const {
+  completeOnboarding,
   getSessionUser,
   login,
   logout,
@@ -58,6 +59,15 @@ router.post("/logout", (request, response) => {
 router.patch("/subscriptions", (request, response) => {
   try {
     const session = updateSubscriptionKeywords(getSessionToken(request), request.body);
+    response.json(session);
+  } catch (error) {
+    sendError(response, error);
+  }
+});
+
+router.patch("/onboarding", (request, response) => {
+  try {
+    const session = completeOnboarding(getSessionToken(request), request.body);
     response.json(session);
   } catch (error) {
     sendError(response, error);

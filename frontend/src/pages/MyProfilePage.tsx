@@ -38,6 +38,9 @@ export function MyProfilePage({ currentUser }: MyProfilePageProps) {
   const subscribedKeywords = keywords.filter((keyword) =>
     currentUser.subscriptionKeywordIds.includes(keyword.id)
   );
+  const preferredKeywords = keywords.filter((keyword) =>
+    currentUser.preferenceKeywordIds.includes(keyword.id)
+  );
 
   return (
     <main className="page-shell profile-page">
@@ -53,8 +56,20 @@ export function MyProfilePage({ currentUser }: MyProfilePageProps) {
         </article>
 
         <article className="panel profile-card">
+          <p className="section-eyebrow">취향 입력</p>
+          <h2 className="section-title">처음 고른 선호 키워드</h2>
+          <div className="related-keyword-list">
+            {preferredKeywords.map((keyword) => (
+              <span key={keyword.id} className="keyword-summary-chip">
+                {keyword.label}
+              </span>
+            ))}
+          </div>
+        </article>
+
+        <article className="panel profile-card">
           <p className="section-eyebrow">구독 키워드</p>
-          <h2 className="section-title">홈 대시보드에 연결된 관심 키워드</h2>
+          <h2 className="section-title">AI가 선별한 홈 구독 키워드</h2>
           <div className="related-keyword-list">
             {subscribedKeywords.map((keyword) => (
               <span key={keyword.id} className="keyword-summary-chip">

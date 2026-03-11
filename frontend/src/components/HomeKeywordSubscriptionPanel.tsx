@@ -21,7 +21,7 @@ export function HomeKeywordSubscriptionPanel({
           <h2 className="section-title">홈에서 바로 구독 관리</h2>
         </div>
         <span className="section-helper">
-          {subscribedKeywordIds.length}개 구독 중 {isSaving ? "· 저장 중..." : ""}
+          AI 추천으로 시작된 {subscribedKeywordIds.length}개 구독 {isSaving ? "· 저장 중..." : ""}
         </span>
       </div>
 

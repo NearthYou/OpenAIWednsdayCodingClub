@@ -27,6 +27,15 @@ export interface InterestKeyword {
   group: string;
 }
 
+export interface KeywordRecommendation {
+  id: string;
+  label: string;
+  group: string;
+  score: number;
+  source: "selected" | "recommended";
+  reason: string;
+}
+
 export interface EventAiSummary {
   statusMessage: string;
   summaryPoints: string[];

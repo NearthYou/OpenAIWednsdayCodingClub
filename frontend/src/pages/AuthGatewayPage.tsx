@@ -1,20 +1,10 @@
-import { type FormEvent, useEffect, useState } from "react";
-import { fetchKeywords } from "../api/client";
-import { fallbackKeywords } from "../data/fallback-data";
+import { type FormEvent, useState } from "react";
 import type { LoginRequest, SignupRequest } from "../types/auth";
-import type { InterestKeyword } from "../types/event";
-
 interface AuthGatewayPageProps {
   errorMessage: string;
   isSubmitting: boolean;
   onLogin: (payload: LoginRequest) => Promise<void>;
   onSignup: (payload: SignupRequest) => Promise<void>;
-}
-
-function toggleKeywordSelection(currentKeywordIds: string[], keywordId: string) {
-  return currentKeywordIds.includes(keywordId)
-    ? currentKeywordIds.filter((currentId) => currentId !== keywordId)
-    : [...currentKeywordIds, keywordId];
 }
 
 export function AuthGatewayPage({
@@ -24,7 +14,6 @@ export function AuthGatewayPage({
   onSignup
 }: AuthGatewayPageProps) {
   const [mode, setMode] = useState<"login" | "signup">("login");
-  const [availableKeywords, setAvailableKeywords] = useState<InterestKeyword[]>(fallbackKeywords);
   const [loginForm, setLoginForm] = useState<LoginRequest>({
     email: "demo@ducking.club",
     password: "demo1234"
@@ -37,30 +26,6 @@ export function AuthGatewayPage({
   });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [localErrorMessage, setLocalErrorMessage] = useState("");
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadKeywords() {
-      try {
-        const keywords = await fetchKeywords();
-
-        if (isMounted) {
-          setAvailableKeywords(keywords);
-        }
-      } catch {
-        if (isMounted) {
-          setAvailableKeywords(fallbackKeywords);
-        }
-      }
-    }
-
-    void loadKeywords();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -171,35 +136,11 @@ export function AuthGatewayPage({
                   />
                 </label>
 
-                <div className="auth-field">
-                  <span>관심 키워드</span>
-                  <div className="auth-keyword-grid">
-                    {availableKeywords.map((keyword) => {
-                      const isSelected = signupForm.subscriptionKeywordIds.includes(keyword.id);
-
-                      return (
-                        <button
-                          key={keyword.id}
-                          className={`auth-keyword-chip${isSelected ? " is-selected" : ""}`}
-                          type="button"
-                          onClick={() =>
-                            setSignupForm((current) => ({
-                              ...current,
-                              subscriptionKeywordIds: toggleKeywordSelection(
-                                current.subscriptionKeywordIds,
-                                keyword.id
-                              )
-                            }))
-                          }
-                        >
-                          <span>{keyword.label}</span>
-                          <small>{keyword.group}</small>
-                        </button>
-                      );
-                    })}
-                  </div>
+                <div className="auth-demo-box">
+                  <span>첫 로그인 온보딩</span>
+                  <strong>회원가입 후 첫 로그인에서 좋아하는 키워드를 고르면 AI가 홈 구독 키워드를 선별합니다.</strong>
                   <small className="auth-field__helper">
-                    선택하지 않으면 기본 관심 키워드가 자동으로 적용됩니다.
+                    스포티파이처럼 취향 선택을 먼저 받고, 그 입력을 바탕으로 유사한 팬덤 키워드까지 추천합니다.
                   </small>
                 </div>
               </>

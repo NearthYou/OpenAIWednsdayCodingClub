@@ -2,7 +2,10 @@ export interface AuthUser {
   id: string;
   displayName: string;
   email: string;
+  preferenceKeywordIds: string[];
   subscriptionKeywordIds: string[];
+  hasCompletedOnboarding: boolean;
+  onboardingCompletedAt: string | null;
   createdAt: string;
 }
 
