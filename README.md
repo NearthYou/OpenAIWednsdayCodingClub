@@ -13,12 +13,6 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Fandom-K--POP-ff69b4?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Anime-Schedule-a78bfa?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Goods-Release-60a5fa?style=for-the-badge"/>
-</p>
-
-<p align="center">
   💥 덕질은 사고처럼 찾아온다 — 그래서 이름도 <b>덕통사고</b>
 </p>
 
