@@ -1,4 +1,5 @@
 node_modules
+public
 frontend/node_modules
 backend/node_modules
 frontend/dist
@@ -11,3 +12,5 @@ frontend/.vite
 *-direct.log
 *-direct.err.log
 .DS_Store
+
+.vercel

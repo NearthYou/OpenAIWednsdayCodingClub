@@ -11,6 +11,7 @@
     "dev:frontend": "npm run dev --workspace frontend",
     "dev:backend": "npm run dev --workspace backend",
     "build": "npm run build --workspace frontend",
+    "build:vercel": "npm run build --workspace frontend -- --outDir ../public",
     "typecheck": "npm run typecheck --workspace frontend",
     "start": "npm run start --workspace backend"
   },
