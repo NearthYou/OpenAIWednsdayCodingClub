@@ -1,0 +1,43 @@
+{
+  "name": "openaiwednsdaycodingclub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Keyword-based stock and company exploration service",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NearthYou/OpenAIWednsdayCodingClub.git"
+  },
+  "keywords": [
+    "nextjs",
+    "stocks",
+    "market",
+    "keyword-search"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NearthYou/OpenAIWednsdayCodingClub/issues"
+  },
+  "homepage": "https://github.com/NearthYou/OpenAIWednsdayCodingClub#readme",
+  "dependencies": {
+    "next": "^16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "rss-parser": "^3.13.0",
+    "yahoo-finance2": "^3.13.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.1",
+    "@types/react": "^19.2.1",
+    "@types/react-dom": "^19.2.2",
+    "eslint": "^9.36.0",
+    "eslint-config-next": "^16.1.6",
+    "typescript": "^5.9.2"
+  }
+}

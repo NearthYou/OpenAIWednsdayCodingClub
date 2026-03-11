@@ -1,2 +1,34 @@
-# OpenAIWednsdayCodingClub
-VibeCoding Project
+# Market Keyword Explorer
+
+키워드로 관련 상장 기업과 최근 시장 흐름을 탐색하는 Next.js 웹서비스다.
+
+## 포함 기능
+
+- 산업 키워드 또는 회사명/티커 검색
+- 키워드 요약 문구 표시
+- 관련 상장 회사 카드형 결과
+- 회사별 연결 이유, 최근 주가 흐름, 최근 등락률, 관련 뉴스 3개 표시
+- `투자 권유 아님` 문구 명시
+- 라이트/다크 환경 대응
+
+## 실행
+
+```bash
+npm install
+npm run dev
+```
+
+브라우저에서 `http://localhost:3000`으로 접속한다.
+
+## 기술 구성
+
+- Next.js App Router
+- Yahoo Finance: 최근 1개월 시세와 일부 뉴스
+- Google News RSS: 뉴스 fallback
+- 로컬 키워드/기업 데이터셋: 키워드-기업 연결 근거
+
+## 참고
+
+- 이 서비스는 투자 추천 도구가 아니라 탐색/분석용 UI다.
+- 현재는 자주 쓰는 키워드와 대표 기업 위주로 데이터셋을 구성했다.
+- 원하면 다음 단계에서 OpenAI API를 붙여 자연어 키워드 확장, 요약 고도화, 관련 이유 자동 생성까지 확장할 수 있다.
