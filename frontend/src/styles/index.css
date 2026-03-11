@@ -394,6 +394,10 @@ a {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.trending-keyword-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .auth-keyword-chip,
 .trending-keyword-chip,
 .keyword-summary-chip {
@@ -966,10 +970,15 @@ a {
 }
 
 .related-keyword-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin-top: 18px;
+}
+
+.related-keyword-list .text-button {
+  width: 100%;
+  text-align: center;
 }
 
 .keyword-summary-chip {
@@ -1880,6 +1889,8 @@ a {
   .home-subscription-chip-list,
   .onboarding-preview-list,
   .onboarding-keyword-grid,
+  .trending-keyword-row,
+  .related-keyword-list,
   .countdown-grid,
   .search-composer__form {
     grid-template-columns: 1fr;
