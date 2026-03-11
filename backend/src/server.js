@@ -1,3 +1,7 @@
+const { loadEnvFiles } = require("./config/load-env");
+
+loadEnvFiles();
+
 const { app } = require("./app");
 
 const port = process.env.PORT || 4000;

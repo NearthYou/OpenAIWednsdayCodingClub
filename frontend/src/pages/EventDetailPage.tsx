@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
+import { fetchEventSummary } from "../api/client";
 import { CATEGORY_LABELS, SOURCE_TYPE_LABELS } from "../constants/filter-options";
 import { formatEventTimeRange } from "../utils/date";
-import type { EventItem } from "../types/event";
+import type { EventAiSummary, EventAiSummaryMeta, EventItem } from "../types/event";
 
 interface EventDetailPageProps {
   event: EventItem;
@@ -142,14 +144,94 @@ function getStatusMessage(event: EventItem) {
   return "팬 커뮤니티 기반 일정이라 공식 공지와 함께 비교해보는 것이 좋습니다.";
 }
 
+function buildFallbackSummary(event: EventItem): EventAiSummary {
+  const [highlightSchedule, highlightSourceStatus, highlightFanCheckpoint] = getHighlightCards(event).map(
+    (card) => card.value
+  );
+  const [reservationGuide, bonusGuide, verificationGuide] = getChecklistItems(event).map(
+    (item) => item.value
+  );
+
+  return {
+    statusMessage: getStatusMessage(event),
+    summaryPoints: getSummaryPoints(event),
+    highlightSchedule,
+    highlightSourceStatus,
+    highlightFanCheckpoint,
+    reservationGuide,
+    bonusGuide,
+    verificationGuide
+  };
+}
+
 export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
-  const summaryPoints = getSummaryPoints(event);
   const actionItems = getActionItems(event);
-  const highlightCards = getHighlightCards(event);
-  const checklistItems = getChecklistItems(event);
   const primaryAction = actionItems[0];
   const secondaryActions = actionItems.slice(1, 4);
   const followUpAction = actionItems[4];
+  const fallbackSummary = buildFallbackSummary(event);
+  const [aiSummary, setAiSummary] = useState<EventAiSummary | null>(null);
+  const [summaryMeta, setSummaryMeta] = useState<EventAiSummaryMeta | null>(null);
+  const [summaryError, setSummaryError] = useState("");
+  const [isSummaryLoading, setIsSummaryLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadSummary() {
+      setAiSummary(null);
+      setSummaryMeta(null);
+      setSummaryError("");
+      setIsSummaryLoading(true);
+
+      try {
+        const payload = await fetchEventSummary(event.id);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setAiSummary(payload.summary);
+        setSummaryMeta(payload.meta);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setSummaryError(
+          error instanceof Error ? error.message : "OpenAI 요약을 불러오지 못했습니다."
+        );
+      } finally {
+        if (isMounted) {
+          setIsSummaryLoading(false);
+        }
+      }
+    }
+
+    void loadSummary();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [event.id]);
+
+  const activeSummary = aiSummary || fallbackSummary;
+  const highlightCards = [
+    { title: "핵심 일정", value: activeSummary.highlightSchedule },
+    { title: "출처 상태", value: activeSummary.highlightSourceStatus },
+    { title: "팬 체크포인트", value: activeSummary.highlightFanCheckpoint }
+  ];
+  const checklistItems = [
+    { label: "예약 / 응모", value: activeSummary.reservationGuide },
+    { label: "특전 / 추가 정보", value: activeSummary.bonusGuide },
+    { label: "재확인 포인트", value: activeSummary.verificationGuide }
+  ];
+  const summaryTone = isSummaryLoading ? "loading" : aiSummary ? "live" : "fallback";
+  const summaryNotice = isSummaryLoading
+    ? "OpenAI가 요약을 생성하는 동안 규칙 기반 요약을 먼저 보여주고 있습니다."
+    : aiSummary && summaryMeta
+      ? `OpenAI ${summaryMeta.model} 응답으로 생성한 요약입니다.`
+      : `${summaryError || "OpenAI 요약을 불러오지 못했습니다."} 규칙 기반 요약을 표시 중입니다.`;
 
   return (
     <main className="page-shell">
@@ -238,9 +320,14 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
               <p className="section-eyebrow">AI 요약</p>
               <h2 className="section-title">핵심 일정 / 팬이 알아야 할 포인트</h2>
             </div>
+            <span className={`detail-ai-badge detail-ai-badge--${summaryTone}`}>
+              {isSummaryLoading ? "생성 중" : aiSummary ? "OpenAI Live" : "Fallback"}
+            </span>
           </div>
 
-          <p className="detail-summary-copy">{getStatusMessage(event)}</p>
+          <p className="detail-summary-hint">{summaryNotice}</p>
+
+          <p className="detail-summary-copy">{activeSummary.statusMessage}</p>
 
           <div className="detail-highlight-grid">
             {highlightCards.map((card) => (
@@ -252,7 +339,7 @@ export function EventDetailPage({ event, onBack }: EventDetailPageProps) {
           </div>
 
           <ul className="detail-summary-list">
-            {summaryPoints.map((point) => (
+            {activeSummary.summaryPoints.map((point) => (
               <li key={point}>{point}</li>
             ))}
           </ul>

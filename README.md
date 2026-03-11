@@ -18,6 +18,28 @@ npm run dev
 - 프론트엔드: `http://localhost:5173`
 - 백엔드 API: `http://localhost:4000`
 
+## OpenAI AI 요약 연결
+
+이제 상세 페이지의 `AI 요약 보기`는 백엔드에서 OpenAI Responses API를 호출해 실제 요약을 생성할 수 있습니다.
+
+1. 루트에 `.env` 파일을 만들고 아래 값을 넣습니다.
+
+```bash
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_SUMMARY_MODEL=gpt-4.1-mini
+VITE_API_BASE_URL=http://localhost:4000
+```
+
+2. 서버를 다시 실행합니다.
+
+```bash
+npm run dev
+```
+
+3. `http://localhost:5173`에서 일정 카드를 열고 `AI 요약 보기`를 누르면 상세 페이지가 OpenAI 응답을 불러옵니다.
+
+`OPENAI_API_KEY`가 없거나 호출에 실패하면 화면은 규칙 기반 요약으로 자동 fallback 됩니다.
+
 ## 주요 API
 
 - `GET /api/events?month=2026-03&search=블루아카&category=anime_game&sourceType=official&keyword=블루아카`

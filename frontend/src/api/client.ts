@@ -1,4 +1,11 @@
-import type { EventCategory, EventItem, InterestKeyword, SourceType } from "../types/event";
+import type {
+  EventAiSummary,
+  EventAiSummaryMeta,
+  EventCategory,
+  EventItem,
+  InterestKeyword,
+  SourceType
+} from "../types/event";
 import type { GoodsItem, GoodsReleaseType } from "../types/goods";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
@@ -85,6 +92,28 @@ export async function fetchEventDetail(id: string): Promise<EventItem> {
 
   const payload = (await response.json()) as { event: EventItem };
   return payload.event;
+}
+
+export async function fetchEventSummary(
+  id: string
+): Promise<{ summary: EventAiSummary; meta: EventAiSummaryMeta }> {
+  const response = await fetch(`${API_BASE_URL}/api/events/${id}/summary`);
+  const payload = (await response.json().catch(() => null)) as
+    | { summary: EventAiSummary; meta: EventAiSummaryMeta; message?: string }
+    | null;
+
+  if (!response.ok) {
+    throw new Error(payload?.message || "Failed to fetch AI summary");
+  }
+
+  if (!payload?.summary || !payload.meta) {
+    throw new Error("Invalid AI summary response");
+  }
+
+  return {
+    summary: payload.summary,
+    meta: payload.meta
+  };
 }
 
 export async function fetchGoods(params: FetchGoodsParams): Promise<GoodsItem[]> {

@@ -27,6 +27,23 @@ export interface InterestKeyword {
   group: string;
 }
 
+export interface EventAiSummary {
+  statusMessage: string;
+  summaryPoints: string[];
+  highlightSchedule: string;
+  highlightSourceStatus: string;
+  highlightFanCheckpoint: string;
+  reservationGuide: string;
+  bonusGuide: string;
+  verificationGuide: string;
+}
+
+export interface EventAiSummaryMeta {
+  provider: string;
+  model: string;
+  generatedAt: string;
+}
+
 export interface EventFilters {
   searchQuery: string;
   selectedCategories: EventCategory[];

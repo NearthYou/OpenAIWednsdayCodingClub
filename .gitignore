@@ -2,4 +2,9 @@ node_modules
 frontend/node_modules
 backend/node_modules
 frontend/dist
+.env
+.env.*
+!.env.example
+.codex-logs
+frontend/.vite
 .DS_Store
