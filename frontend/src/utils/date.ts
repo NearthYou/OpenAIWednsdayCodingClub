@@ -124,12 +124,19 @@ export function buildCalendarWeeks(monthDate: Date) {
   const firstDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const firstGridDay = new Date(firstDayOfMonth);
   firstGridDay.setDate(firstDayOfMonth.getDate() - firstDayOfMonth.getDay());
+  const lastDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+  const lastGridDay = new Date(lastDayOfMonth);
+  lastGridDay.setDate(lastDayOfMonth.getDate() + (6 - lastDayOfMonth.getDay()));
 
   const days: CalendarDay[] = [];
 
-  for (let index = 0; index < 42; index += 1) {
+  for (let index = 0; ; index += 1) {
     const currentDate = new Date(firstGridDay);
     currentDate.setDate(firstGridDay.getDate() + index);
+
+    if (currentDate > lastGridDay) {
+      break;
+    }
 
     days.push({
       dateKey: getDateKey(currentDate),

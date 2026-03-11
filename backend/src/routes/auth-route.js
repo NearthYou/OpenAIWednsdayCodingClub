@@ -5,6 +5,7 @@ const {
   login,
   logout,
   signup,
+  updateProfile,
   updateSubscriptionKeywords
 } = require("../services/auth-service");
 
@@ -59,6 +60,15 @@ router.post("/logout", (request, response) => {
 router.patch("/subscriptions", (request, response) => {
   try {
     const session = updateSubscriptionKeywords(getSessionToken(request), request.body);
+    response.json(session);
+  } catch (error) {
+    sendError(response, error);
+  }
+});
+
+router.patch("/profile", (request, response) => {
+  try {
+    const session = updateProfile(getSessionToken(request), request.body);
     response.json(session);
   } catch (error) {
     sendError(response, error);

@@ -5,6 +5,7 @@ import {
   loginUser,
   logoutUser,
   signupUser,
+  updateUserProfile,
   updateUserSubscriptions
 } from "./api/client";
 import { MainNavigationBar } from "./components/MainNavigationBar";
@@ -48,6 +49,7 @@ export default function App() {
   const [authErrorMessage, setAuthErrorMessage] = useState("");
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
   const [savedSchedules, setSavedSchedules] = useState<SavedScheduleItem[]>(() => readSavedSchedules());
+  const [calendarFocusDate, setCalendarFocusDate] = useState<string | null>(null);
 
   function navigate(nextRoute: AppRoutePath, options?: { replace?: boolean }) {
     const shouldReplace = options?.replace ?? false;
@@ -210,6 +212,19 @@ export default function App() {
     }
   }
 
+  async function handleUpdateProfile(displayName: string) {
+    if (!authSession) {
+      throw new Error("로그인 정보가 없습니다.");
+    }
+
+    const nextSession = await updateUserProfile(authSession.sessionToken, {
+      displayName
+    });
+
+    setAuthSession(nextSession);
+    return nextSession;
+  }
+
   function handleSaveSchedule(schedule: SavedScheduleItem) {
     setSavedSchedules((currentSchedules) => {
       if (currentSchedules.some((currentSchedule) => currentSchedule.id === schedule.id)) {
@@ -224,6 +239,14 @@ export default function App() {
     setSavedSchedules((currentSchedules) =>
       currentSchedules.filter((currentSchedule) => currentSchedule.id !== scheduleId)
     );
+  }
+
+  function handleNavigateToCalendar(dateKey?: string) {
+    if (dateKey) {
+      setCalendarFocusDate(dateKey);
+    }
+
+    navigate(APP_ROUTE_PATHS.calendar);
   }
 
   if (authState === "loading") {
@@ -266,14 +289,20 @@ export default function App() {
           currentUser={authSession.user}
           sessionToken={authSession.sessionToken}
           savedSchedules={savedSchedules}
-          onNavigateToCalendar={() => navigate(APP_ROUTE_PATHS.calendar)}
+          onNavigateToCalendar={handleNavigateToCalendar}
           onSaveSchedule={handleSaveSchedule}
           onUpdateSubscriptions={handleSubscriptionChange}
         />
       ) : null}
 
       {route === APP_ROUTE_PATHS.calendar ? (
-        <CalendarPage savedSchedules={savedSchedules} onSaveSchedule={handleSaveSchedule} />
+        <CalendarPage
+          savedSchedules={savedSchedules}
+          pendingFocusDate={calendarFocusDate}
+          onClearPendingFocusDate={() => setCalendarFocusDate(null)}
+          onNavigateToCalendar={handleNavigateToCalendar}
+          onSaveSchedule={handleSaveSchedule}
+        />
       ) : null}
 
       {route === APP_ROUTE_PATHS.pageTwo ? <GoodsExplorePage /> : null}
@@ -283,6 +312,7 @@ export default function App() {
           currentUser={authSession.user}
           savedSchedules={savedSchedules}
           onRemoveSavedSchedule={handleRemoveSavedSchedule}
+          onUpdateDisplayName={handleUpdateProfile}
         />
       ) : null}
     </div>

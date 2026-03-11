@@ -1,6 +1,7 @@
 import { GOODS_PICKUP_LABELS, GOODS_RELEASE_LABELS } from "../constants/goods-options";
 import { SOURCE_TYPE_LABELS } from "../constants/filter-options";
 import { formatCompactEventTimeRange } from "../utils/date";
+import { getGoodsPhotoPresentation } from "../utils/goods-media";
 import { getKeywordImage } from "../utils/keyword-images";
 import { getThumbnailPresentation } from "../utils/thumbnail";
 import type { GoodsItem } from "../types/goods";
@@ -13,20 +14,26 @@ export function GoodsReleaseCard({ item }: GoodsReleaseCardProps) {
   const visibleTags = item.tags.slice(0, 1);
   const hiddenTagCount = Math.max(0, item.tags.length - visibleTags.length);
   const thumbnail = getThumbnailPresentation(item.entityName, item.releaseType);
-  const previewImage = getKeywordImage(item.entityName);
+  const photo = getGoodsPhotoPresentation(item);
+  const previewImage = photo ? null : getKeywordImage(item.entityName);
+  const thumbnailClassName = `card-thumbnail goods-card__thumbnail${photo ? " card-thumbnail--photo" : ""}`;
 
   return (
     <article className="goods-card">
-      <div className="card-thumbnail goods-card__thumbnail" style={thumbnail.style}>
+      <div className={thumbnailClassName} style={thumbnail.style}>
+        {photo ? (
+          <img
+            className="card-thumbnail__image"
+            src={photo.src}
+            alt={photo.alt}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            style={{ objectPosition: photo.objectPosition }}
+          />
+        ) : null}
         <div className="card-thumbnail__overlay">
           <span className="card-thumbnail__eyebrow">{item.entityName}</span>
-          {previewImage ? (
-            <div className="card-thumbnail__visual" aria-hidden="true">
-              <div className="card-thumbnail__preview-shell">
-                <img className="card-thumbnail__preview" src={previewImage} alt="" loading="lazy" />
-              </div>
-            </div>
-          ) : null}
+          <strong className="card-thumbnail__initials">{thumbnail.initials}</strong>
         </div>
       </div>
 
