@@ -8,9 +8,10 @@ interface GoodsFilterPanelProps {
   selectedSourceTypes: SourceType[];
   filteredCount: number;
   totalCount: number;
+  isAllFiltersSelected: boolean;
   onToggleReleaseType: (releaseType: GoodsReleaseType) => void;
   onToggleSourceType: (sourceType: SourceType) => void;
-  onReset: () => void;
+  onToggleAll: () => void;
 }
 
 export function GoodsFilterPanel({
@@ -18,9 +19,10 @@ export function GoodsFilterPanel({
   selectedSourceTypes,
   filteredCount,
   totalCount,
+  isAllFiltersSelected,
   onToggleReleaseType,
   onToggleSourceType,
-  onReset
+  onToggleAll
 }: GoodsFilterPanelProps) {
   return (
     <aside className="panel filter-panel">
@@ -29,8 +31,8 @@ export function GoodsFilterPanel({
           <p className="section-eyebrow">굿즈 필터</p>
           <h2 className="section-title">탐색 조건</h2>
         </div>
-        <button className="text-button" type="button" onClick={onReset}>
-          초기화
+        <button className="text-button" type="button" onClick={onToggleAll}>
+          {isAllFiltersSelected ? "모두 OFF" : "모두 ON"}
         </button>
       </div>
 

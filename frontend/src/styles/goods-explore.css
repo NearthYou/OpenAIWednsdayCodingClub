@@ -1,14 +1,15 @@
 .goods-layout {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr) 340px;
+  grid-template-columns: 280px minmax(0, 860px);
   gap: 20px;
   align-items: start;
+  justify-content: center;
   margin-top: 20px;
 }
 
-.goods-board,
-.goods-timeline-panel {
+.goods-board {
   padding: 22px;
+  width: 100%;
 }
 
 .goods-board__header {
@@ -19,22 +20,36 @@
 }
 
 .goods-board__helper {
-  margin: 14px 0 0;
+  margin: 12px 0 0;
   color: var(--text-muted);
-  line-height: 1.7;
+  line-height: 1.6;
+}
+
+.goods-board__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.goods-board__page-status {
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
 .goods-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .goods-card {
-  padding: 18px;
+  padding: 14px;
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 16px;
   background:
     radial-gradient(circle at top right, rgba(207, 105, 69, 0.08), transparent 28%),
     #fff;
@@ -44,85 +59,89 @@
 .goods-timeline-item__header {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .goods-card__content {
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .goods-card__eyebrow {
   margin: 0;
   color: var(--text-muted);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
 .goods-card__title {
-  margin: 8px 0 0;
-  font-size: 1.08rem;
+  margin: 6px 0 0;
+  font-size: 0.98rem;
+  line-height: 1.35;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .goods-card__spotlight {
-  margin: 10px 0 0;
+  margin: 6px 0 0;
   color: var(--text-muted);
-  line-height: 1.65;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
 }
 
 .goods-card__details {
   display: grid;
-  gap: 12px;
-  margin: 16px 0 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 10px;
+  margin: 12px 0 0;
 }
 
 .goods-card__details div {
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
 .goods-card__details dt {
   color: var(--text-muted);
-  font-size: 0.82rem;
+  font-size: 0.76rem;
 }
 
 .goods-card__details dd {
   margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.35;
+  word-break: keep-all;
 }
 
 .goods-card__stock-note {
-  margin-top: 16px;
-  padding: 12px 14px;
-  border-radius: 16px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 14px;
   background: var(--surface-muted);
   color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
 }
 
-.goods-timeline-list {
-  display: grid;
-  gap: 12px;
-  margin-top: 18px;
+.goods-card .tag-list {
+  gap: 6px;
+  margin-top: 10px;
 }
 
-.goods-timeline-item {
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: #fff;
-}
-
-.goods-timeline-item strong {
-  display: block;
-  margin-top: 12px;
-  line-height: 1.45;
-}
-
-.goods-timeline-item p,
-.goods-timeline-item small {
-  display: block;
-  margin-top: 8px;
-  color: var(--text-muted);
+.goods-card .tag-chip {
+  padding: 4px 8px;
+  font-size: 0.72rem;
 }
 
 .goods-footer-note {
@@ -133,12 +152,8 @@
 }
 
 @media (max-width: 1260px) {
-  .goods-layout {
-    grid-template-columns: 280px minmax(0, 1fr);
-  }
-
-  .goods-timeline-panel {
-    grid-column: 1 / -1;
+  .goods-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -148,17 +163,22 @@
     gap: 16px;
   }
 
-  .goods-board,
-  .goods-timeline-panel {
+  .goods-board {
     padding: 18px;
     border-radius: 22px;
   }
 
   .goods-grid {
     grid-template-columns: 1fr;
+    justify-content: stretch;
   }
 
   .goods-board__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .goods-board__footer {
     flex-direction: column;
     align-items: stretch;
   }
