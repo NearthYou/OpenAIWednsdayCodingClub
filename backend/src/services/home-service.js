@@ -154,6 +154,42 @@ function buildSearchResultFromDiscoveryItem(item) {
   };
 }
 
+function createGenericArticleSearchResults(query) {
+  const trimmedQuery = String(query || "").trim();
+
+  if (!trimmedQuery) {
+    return [];
+  }
+
+  const encodedQuery = encodeURIComponent(trimmedQuery);
+  const now = new Date().toISOString();
+
+  return [
+    {
+      id: `web-fallback-google-${encodedQuery}`,
+      kind: "article",
+      sourceScope: "web",
+      title: `${trimmedQuery} 최신 기사 검색`,
+      summary: `${trimmedQuery} 관련 최신 기사 결과를 Google 뉴스에서 바로 확인할 수 있습니다.`,
+      keywordLabel: trimmedQuery,
+      referenceAt: now,
+      sourceName: "Google 뉴스",
+      sourceUrl: `https://news.google.com/search?q=${encodedQuery}%20when%3A7d&hl=ko&gl=KR&ceid=KR%3Ako`
+    },
+    {
+      id: `web-fallback-naver-${encodedQuery}`,
+      kind: "article",
+      sourceScope: "web",
+      title: `${trimmedQuery} 네이버 뉴스 검색`,
+      summary: `${trimmedQuery} 관련 기사와 블로그, 커뮤니티 반응을 네이버 검색으로 바로 확인할 수 있습니다.`,
+      keywordLabel: trimmedQuery,
+      referenceAt: now,
+      sourceName: "Naver Search",
+      sourceUrl: `https://search.naver.com/search.naver?where=news&query=${encodedQuery}`
+    }
+  ];
+}
+
 function buildSearchableText(item) {
   return normalizeText([item.title, item.summary, item.keywordLabel, item.sourceName].join(" "));
 }
@@ -274,7 +310,12 @@ async function searchDiscovery(user, query) {
     })
     .slice(0, 4)
     .map(buildSearchResultFromDiscoveryItem);
-  const webResults = normalizedQuery ? await fetchLatestWebArticles(trimmedQuery) : [];
+  const fetchedWebResults = normalizedQuery ? await fetchLatestWebArticles(trimmedQuery) : [];
+  const webResults = fetchedWebResults.length
+    ? fetchedWebResults
+    : normalizedQuery
+      ? createGenericArticleSearchResults(trimmedQuery)
+      : [];
 
   const relatedKeywords = trendingKeywords
     .filter((keyword) => {

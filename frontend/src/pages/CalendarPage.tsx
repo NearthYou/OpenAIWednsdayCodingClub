@@ -174,19 +174,6 @@ export function CalendarPage({
     onClearPendingFocusDate();
   }, [onClearPendingFocusDate, pendingFocusDate]);
 
-  useEffect(() => {
-    if (!filteredEvents.length) {
-      return;
-    }
-
-    const hasVisibleEventOnSelectedDate = filteredEvents.some(
-      (event) => getEventDateKey(event) === selectedDate
-    );
-
-    if (!hasVisibleEventOnSelectedDate) {
-      setSelectedDate(getEventDateKey(filteredEvents[0]));
-    }
-  }, [filteredEvents, selectedDate]);
   const selectedDateEvents = filteredEvents.filter(
     (event) => getEventDateKey(event) === selectedDate
   );
