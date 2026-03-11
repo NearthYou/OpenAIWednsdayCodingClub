@@ -207,7 +207,6 @@ npm run build --workspace frontend
 | Frontend | React 19, Vite 6, TypeScript |
 | Backend | Node.js, Express |
 | AI | OpenAI Responses API |
-| State | localStorage 기반 저장 |
 
 ---
 
