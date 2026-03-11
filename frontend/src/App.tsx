@@ -16,6 +16,12 @@ import { HomeDashboardPage } from "./pages/HomeDashboardPage";
 import { KeywordOnboardingPage } from "./pages/KeywordOnboardingPage";
 import { MyProfilePage } from "./pages/MyProfilePage";
 import type { AuthSessionPayload, LoginRequest, SignupRequest } from "./types/auth";
+import type { SavedScheduleItem } from "./types/event";
+import {
+  persistSavedSchedules,
+  readSavedSchedules,
+  sortSavedSchedules
+} from "./utils/saved-schedules";
 
 const SESSION_STORAGE_KEY = "fandom.home.session-token";
 
@@ -41,6 +47,7 @@ export default function App() {
   const [authState, setAuthState] = useState<"loading" | "anonymous" | "authenticated">("loading");
   const [authErrorMessage, setAuthErrorMessage] = useState("");
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
+  const [savedSchedules, setSavedSchedules] = useState<SavedScheduleItem[]>(() => readSavedSchedules());
 
   function navigate(nextRoute: AppRoutePath, options?: { replace?: boolean }) {
     const shouldReplace = options?.replace ?? false;
@@ -115,6 +122,10 @@ export default function App() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    persistSavedSchedules(savedSchedules);
+  }, [savedSchedules]);
 
   async function handleAuthSuccess(session: AuthSessionPayload) {
     setStoredSessionToken(session.sessionToken);
@@ -199,6 +210,22 @@ export default function App() {
     }
   }
 
+  function handleSaveSchedule(schedule: SavedScheduleItem) {
+    setSavedSchedules((currentSchedules) => {
+      if (currentSchedules.some((currentSchedule) => currentSchedule.id === schedule.id)) {
+        return currentSchedules;
+      }
+
+      return [...currentSchedules, schedule].sort(sortSavedSchedules);
+    });
+  }
+
+  function handleRemoveSavedSchedule(scheduleId: string) {
+    setSavedSchedules((currentSchedules) =>
+      currentSchedules.filter((currentSchedule) => currentSchedule.id !== scheduleId)
+    );
+  }
+
   if (authState === "loading") {
     return <div className="app-loading-screen">덕질 홈을 준비하는 중입니다...</div>;
   }
@@ -238,16 +265,26 @@ export default function App() {
         <HomeDashboardPage
           currentUser={authSession.user}
           sessionToken={authSession.sessionToken}
+          savedSchedules={savedSchedules}
           onNavigateToCalendar={() => navigate(APP_ROUTE_PATHS.calendar)}
+          onSaveSchedule={handleSaveSchedule}
           onUpdateSubscriptions={handleSubscriptionChange}
         />
       ) : null}
 
-      {route === APP_ROUTE_PATHS.calendar ? <CalendarPage /> : null}
+      {route === APP_ROUTE_PATHS.calendar ? (
+        <CalendarPage savedSchedules={savedSchedules} onSaveSchedule={handleSaveSchedule} />
+      ) : null}
 
       {route === APP_ROUTE_PATHS.pageTwo ? <GoodsExplorePage /> : null}
 
-      {route === APP_ROUTE_PATHS.myPage ? <MyProfilePage currentUser={authSession.user} /> : null}
+      {route === APP_ROUTE_PATHS.myPage ? (
+        <MyProfilePage
+          currentUser={authSession.user}
+          savedSchedules={savedSchedules}
+          onRemoveSavedSchedule={handleRemoveSavedSchedule}
+        />
+      ) : null}
     </div>
   );
 }

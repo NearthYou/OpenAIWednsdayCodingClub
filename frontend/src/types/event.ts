@@ -21,6 +21,21 @@ export interface EventItem {
   tags: string[];
 }
 
+export interface SavedScheduleItem {
+  id: string;
+  sourceEventId: string | null;
+  title: string;
+  entityName: string;
+  typeLabel: string;
+  dateKey: string;
+  startAt: string | null;
+  endAt: string | null;
+  sourceName: string;
+  sourceUrl: string;
+  tags: string[];
+  savedAt: string;
+}
+
 export interface InterestKeyword {
   id: string;
   label: string;
