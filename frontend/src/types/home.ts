@@ -7,6 +7,8 @@ export interface HomeKeywordOption {
   id: string;
   label: string;
   group: string;
+  subscriberCount: number;
+  likeCount: number;
 }
 
 export interface HomeScheduleSummary {

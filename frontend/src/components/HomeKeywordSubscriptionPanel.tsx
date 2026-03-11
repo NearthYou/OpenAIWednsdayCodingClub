@@ -4,6 +4,14 @@ import { getKeywordImage } from "../utils/keyword-images";
 
 const preferredKeywordOrder = ["아이브", "빅스", "르세라핌", "인피니트", "에스파"];
 
+function formatKeywordCount(count: number) {
+  return new Intl.NumberFormat("ko-KR", {
+    notation: "compact",
+    compactDisplay: "short",
+    maximumFractionDigits: 1
+  }).format(count);
+}
+
 interface HomeKeywordSubscriptionPanelProps {
   keywords: HomeKeywordOption[];
   subscribedKeywordIds: string[];
@@ -94,6 +102,10 @@ export function HomeKeywordSubscriptionPanel({
               </div>
               <span>{keyword.label}</span>
               <small>{keyword.group}</small>
+              <div className="home-subscription-chip__stats" aria-label="구독 및 좋아요 정보">
+                <span>구독 {formatKeywordCount(keyword.subscriberCount)}</span>
+                <span>좋아요 {formatKeywordCount(keyword.likeCount)}</span>
+              </div>
               <strong>{isSubscribed ? "구독 중" : "구독 추가"}</strong>
             </button>
           );

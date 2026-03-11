@@ -227,12 +227,16 @@ function getDashboard(user) {
     availableKeywords: interestKeywords.map((keyword) => ({
       id: keyword.id,
       label: keyword.label,
-      group: keyword.group
+      group: keyword.group,
+      subscriberCount: keyword.subscriberCount,
+      likeCount: keyword.likeCount
     })),
     subscribedKeywords: subscribedKeywords.map((keyword) => ({
       id: keyword.id,
       label: keyword.label,
-      group: keyword.group
+      group: keyword.group,
+      subscriberCount: keyword.subscriberCount,
+      likeCount: keyword.likeCount
     })),
     nextHighlight,
     todaySchedules,
