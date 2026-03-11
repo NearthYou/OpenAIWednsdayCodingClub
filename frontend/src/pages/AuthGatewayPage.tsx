@@ -78,6 +78,7 @@ export function AuthGatewayPage({
                 <span>닉네임</span>
                 <input
                   value={signupForm.displayName}
+                  maxLength={8}
                   onChange={(event) =>
                     setSignupForm((current) => ({
                       ...current,

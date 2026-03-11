@@ -7,7 +7,12 @@ import type {
   KeywordRecommendation,
   SourceType
 } from "../types/event";
-import type { AuthSessionPayload, LoginRequest, SignupRequest } from "../types/auth";
+import type {
+  AuthSessionPayload,
+  LoginRequest,
+  SignupRequest,
+  UpdateProfileRequest
+} from "../types/auth";
 import type { GoodsItem, GoodsReleaseType } from "../types/goods";
 import type { HomeDashboardPayload, HomeSearchResponse } from "../types/home";
 
@@ -206,6 +211,19 @@ export async function completeUserOnboarding(
     body: JSON.stringify({
       seedKeywordIds
     })
+  });
+}
+
+export async function updateUserProfile(
+  sessionToken: string,
+  payload: UpdateProfileRequest
+): Promise<AuthSessionPayload> {
+  return requestJson<AuthSessionPayload>("/api/auth/profile", {
+    method: "PATCH",
+    headers: createSessionHeaders(sessionToken, {
+      "Content-Type": "application/json"
+    }),
+    body: JSON.stringify(payload)
   });
 }
 

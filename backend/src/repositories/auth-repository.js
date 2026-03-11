@@ -72,6 +72,22 @@ function updateUserSubscriptionKeywordIds(userId, subscriptionKeywordIds) {
   };
 }
 
+function updateUserDisplayName(userId, displayName) {
+  const user = users.find((currentUser) => currentUser.id === userId);
+
+  if (!user) {
+    return null;
+  }
+
+  user.displayName = String(displayName).trim();
+
+  return {
+    ...user,
+    preferenceKeywordIds: [...user.preferenceKeywordIds],
+    subscriptionKeywordIds: [...user.subscriptionKeywordIds]
+  };
+}
+
 function completeUserOnboarding(userId, onboardingState) {
   const user = users.find((currentUser) => currentUser.id === userId);
 
@@ -132,6 +148,7 @@ module.exports = {
   hashPassword,
   normalizeEmail,
   completeUserOnboarding,
+  updateUserDisplayName,
   updateUserSubscriptionKeywordIds,
   verifyUserPassword
 };

@@ -8,6 +8,7 @@ const {
   findUserByEmail,
   findUserById,
   getDefaultSubscriptionKeywordIds,
+  updateUserDisplayName,
   updateUserSubscriptionKeywordIds,
   verifyUserPassword
 } = require("../repositories/auth-repository");
@@ -56,17 +57,27 @@ function buildSessionPayload(session, user) {
   };
 }
 
+function sanitizeDisplayName(input) {
+  const displayName = String(input || "").trim();
+
+  if (displayName.length < 2) {
+    throw createHttpError(400, "닉네임은 2자 이상이어야 합니다.");
+  }
+
+  if (displayName.length > 8) {
+    throw createHttpError(400, "닉네임은 8자 이하로 입력해 주세요.");
+  }
+
+  return displayName;
+}
+
 function signup(input = {}) {
-  const displayName = String(input.displayName || "").trim();
+  const displayName = sanitizeDisplayName(input.displayName);
   const email = String(input.email || "").trim().toLowerCase();
   const password = String(input.password || "");
   const subscriptionKeywordIds = sanitizeSubscriptionKeywordIds(input.subscriptionKeywordIds, {
     fallbackToDefault: false
   });
-
-  if (displayName.length < 2) {
-    throw createHttpError(400, "닉네임은 2자 이상이어야 합니다.");
-  }
 
   if (!email.includes("@")) {
     throw createHttpError(400, "올바른 이메일 주소를 입력해 주세요.");
@@ -151,6 +162,23 @@ function updateSubscriptionKeywords(sessionToken, input = {}) {
   return buildSessionPayload(currentSession, user);
 }
 
+function updateProfile(sessionToken, input = {}) {
+  const currentSession = findSession(sessionToken);
+
+  if (!currentSession) {
+    throw createHttpError(401, "로그인이 필요합니다.");
+  }
+
+  const displayName = sanitizeDisplayName(input.displayName);
+  const user = updateUserDisplayName(currentSession.userId, displayName);
+
+  if (!user) {
+    throw createHttpError(404, "사용자 정보를 찾을 수 없습니다.");
+  }
+
+  return buildSessionPayload(currentSession, user);
+}
+
 function completeOnboarding(sessionToken, input = {}) {
   const currentSession = findSession(sessionToken);
 
@@ -195,5 +223,6 @@ module.exports = {
   requireSessionUser,
   completeOnboarding,
   signup,
+  updateProfile,
   updateSubscriptionKeywords
 };
