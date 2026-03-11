@@ -1,5 +1,11 @@
 const express = require("express");
-const { getSessionUser, login, logout, signup } = require("../services/auth-service");
+const {
+  getSessionUser,
+  login,
+  logout,
+  signup,
+  updateSubscriptionKeywords
+} = require("../services/auth-service");
 
 const router = express.Router();
 
@@ -47,6 +53,15 @@ router.get("/session", (request, response) => {
 router.post("/logout", (request, response) => {
   logout(getSessionToken(request));
   response.status(204).end();
+});
+
+router.patch("/subscriptions", (request, response) => {
+  try {
+    const session = updateSubscriptionKeywords(getSessionToken(request), request.body);
+    response.json(session);
+  } catch (error) {
+    sendError(response, error);
+  }
 });
 
 module.exports = router;

@@ -3,7 +3,6 @@ export const APP_ROUTE_PATHS = {
   home: "/home",
   calendar: "/calendar",
   pageTwo: "/reserved/page-two",
-  pageThree: "/reserved/page-three",
   myPage: "/my-page"
 } as const;
 
@@ -16,7 +15,6 @@ export const APP_NAVIGATION_ITEMS: Array<{
   { label: "홈", path: APP_ROUTE_PATHS.home },
   { label: "상세 캘린더", path: APP_ROUTE_PATHS.calendar },
   { label: "페이지2", path: APP_ROUTE_PATHS.pageTwo },
-  { label: "페이지3", path: APP_ROUTE_PATHS.pageThree },
   { label: "마이페이지", path: APP_ROUTE_PATHS.myPage }
 ];
 

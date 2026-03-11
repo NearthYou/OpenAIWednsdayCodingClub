@@ -1,14 +1,22 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { fetchHomeDashboard, searchHomeFeed } from "../api/client";
+import { HomeKeywordSubscriptionPanel } from "../components/HomeKeywordSubscriptionPanel";
 import { SOURCE_TYPE_LABELS } from "../constants/filter-options";
-import type { AuthUser } from "../types/auth";
-import type { HomeDashboardPayload, HomeSearchResponse, HomeSearchResultKind } from "../types/home";
+import type { AuthSessionPayload, AuthUser } from "../types/auth";
+import type {
+  HomeDashboardPayload,
+  HomeSearchResponse,
+  HomeSearchResult,
+  HomeSearchResultKind,
+  HomeSearchSourceScope
+} from "../types/home";
 import { formatEventTimeRange, formatShortDateLabel, formatShortDateTime } from "../utils/date";
 
 interface HomeDashboardPageProps {
   currentUser: AuthUser;
   sessionToken: string;
   onNavigateToCalendar: () => void;
+  onUpdateSubscriptions: (subscriptionKeywordIds: string[]) => Promise<AuthSessionPayload>;
 }
 
 const RESULT_KIND_LABELS: Record<HomeSearchResultKind, string> = {
@@ -17,13 +25,26 @@ const RESULT_KIND_LABELS: Record<HomeSearchResultKind, string> = {
   deadline: "마감"
 };
 
+const SOURCE_SCOPE_LABELS: Record<HomeSearchSourceScope, string> = {
+  calendar: "상세 캘린더",
+  stored: "사이트 저장",
+  web: "웹 최신"
+};
+
+function getSubscribedKeywordIds(dashboard: HomeDashboardPayload | null, currentUser: AuthUser) {
+  return dashboard?.subscribedKeywords.map((keyword) => keyword.id) || currentUser.subscriptionKeywordIds;
+}
+
 export function HomeDashboardPage({
   currentUser,
   sessionToken,
-  onNavigateToCalendar
+  onNavigateToCalendar,
+  onUpdateSubscriptions
 }: HomeDashboardPageProps) {
   const [dashboard, setDashboard] = useState<HomeDashboardPayload | null>(null);
+  const [dashboardRefreshKey, setDashboardRefreshKey] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSavingSubscriptions, setIsSavingSubscriptions] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState<HomeSearchResponse | null>(null);
@@ -59,7 +80,7 @@ export function HomeDashboardPage({
     return () => {
       isMounted = false;
     };
-  }, [sessionToken]);
+  }, [dashboardRefreshKey, sessionToken]);
 
   async function runSearch(nextQuery: string) {
     setSearchQuery(nextQuery);
@@ -81,6 +102,51 @@ export function HomeDashboardPage({
     await runSearch(searchQuery);
   }
 
+  async function handleSubscriptionToggle(keywordId: string) {
+    const currentSubscriptionKeywordIds = getSubscribedKeywordIds(dashboard, currentUser);
+    const isSubscribed = currentSubscriptionKeywordIds.includes(keywordId);
+    const nextSubscriptionKeywordIds = isSubscribed
+      ? currentSubscriptionKeywordIds.filter((currentKeywordId) => currentKeywordId !== keywordId)
+      : [...currentSubscriptionKeywordIds, keywordId];
+
+    setIsSavingSubscriptions(true);
+    setErrorMessage("");
+
+    try {
+      await onUpdateSubscriptions(nextSubscriptionKeywordIds);
+      setDashboardRefreshKey((currentValue) => currentValue + 1);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "구독 키워드를 저장하지 못했습니다.");
+    } finally {
+      setIsSavingSubscriptions(false);
+    }
+  }
+
+  function renderSearchResultCard(result: HomeSearchResult) {
+    return (
+      <article key={result.id} className="search-result-card">
+        <div className="search-result-card__meta">
+          <span className={`status-badge status-badge--${result.kind}`}>{RESULT_KIND_LABELS[result.kind]}</span>
+          <span className="category-badge">{result.keywordLabel}</span>
+          <span className={`source-scope-badge source-scope-badge--${result.sourceScope}`}>
+            {SOURCE_SCOPE_LABELS[result.sourceScope]}
+          </span>
+        </div>
+        <h3 className="event-card__title">{result.title}</h3>
+        <p className="search-result-card__summary">{result.summary}</p>
+        <div className="search-result-card__footer">
+          <span>{result.referenceAt ? formatShortDateTime(result.referenceAt) : "날짜 정보 없음"}</span>
+          <a href={result.sourceUrl} target="_blank" rel="noreferrer">
+            {result.sourceName}
+          </a>
+        </div>
+      </article>
+    );
+  }
+
+  const subscribedKeywordIds = getSubscribedKeywordIds(dashboard, currentUser);
+  const availableKeywords = dashboard?.availableKeywords || [];
+
   return (
     <main className="page-shell home-page">
       <section className="panel home-hero">
@@ -88,8 +154,8 @@ export function HomeDashboardPage({
           <p className="hero-eyebrow">메인 홈</p>
           <h1 className="hero-title">{currentUser.displayName}님을 위한 덕질 홈 대시보드</h1>
           <p className="hero-description">
-            검색으로 기사와 일정을 빠르게 확인하고, D-day와 캘린더 요약으로 오늘 해야 할 체크를 바로
-            파악할 수 있습니다. 홈 도메인만 분리해서 작업하므로 이후 머지할 때도 경계가 분명합니다.
+            상세 캘린더에 저장된 일정과 홈 검색, 웹 최신 기사까지 한 화면에서 확인할 수 있습니다. 홈에서
+            바로 구독 키워드를 바꾸고, 오늘 챙겨야 할 일정만 빠르게 체크할 수 있게 구성했습니다.
           </p>
           <div className="home-hero__actions">
             <button className="auth-submit-button" type="button" onClick={onNavigateToCalendar}>
@@ -101,11 +167,11 @@ export function HomeDashboardPage({
         <div className="home-hero__stats">
           <div className="hero-stat-card">
             <span>구독 키워드</span>
-            <strong>{dashboard?.subscribedKeywords.length ?? 0}개</strong>
+            <strong>{subscribedKeywordIds.length}개</strong>
           </div>
           <div className="hero-stat-card">
-            <span>이번 주 일정</span>
-            <strong>{dashboard?.weekSchedules.length ?? 0}개</strong>
+            <span>오늘 일정</span>
+            <strong>{dashboard?.todaySchedules.length ?? 0}개</strong>
           </div>
           <div className="hero-stat-card">
             <span>다음 체크 포인트</span>
@@ -114,13 +180,24 @@ export function HomeDashboardPage({
         </div>
       </section>
 
+      {!isLoading && dashboard ? (
+        <HomeKeywordSubscriptionPanel
+          keywords={availableKeywords}
+          subscribedKeywordIds={subscribedKeywordIds}
+          isSaving={isSavingSubscriptions}
+          onToggle={handleSubscriptionToggle}
+        />
+      ) : null}
+
       <section className="panel search-composer">
         <div className="search-panel__header">
           <div>
             <p className="section-eyebrow">검색</p>
-            <h2 className="section-title">관련 기사와 일정을 함께 찾기</h2>
+            <h2 className="section-title">저장된 일정과 웹 최신 기사 함께 찾기</h2>
           </div>
-          <span className="section-helper">구독 중인 키워드를 기준으로 기사, 일정, 마감 항목을 함께 보여줍니다.</span>
+          <span className="section-helper">
+            입력한 키워드 기준으로 우리 사이트 저장 결과와 웹 최신 기사를 함께 보여줍니다.
+          </span>
         </div>
 
         <form className="search-composer__form" onSubmit={handleSearchSubmit}>
@@ -172,35 +249,38 @@ export function HomeDashboardPage({
                 {searchResult.query ? `"${searchResult.query}" 검색 결과` : "추천 결과"}
               </h2>
             </div>
-            <span className="section-helper">{searchResult.results.length}개 카드</span>
+            <span className="section-helper">
+              저장 결과 {searchResult.localResults.length}개 · 웹 최신 {searchResult.webResults.length}개
+            </span>
           </div>
 
-          {searchResult.results.length ? (
-            <div className="search-results-grid">
-              {searchResult.results.map((result) => (
-                <article key={result.id} className="search-result-card">
-                  <div className="search-result-card__meta">
-                    <span className={`status-badge status-badge--${result.kind}`}>
-                      {RESULT_KIND_LABELS[result.kind]}
-                    </span>
-                    <span className="category-badge">{result.keywordLabel}</span>
-                  </div>
-                  <h3 className="event-card__title">{result.title}</h3>
-                  <p className="search-result-card__summary">{result.summary}</p>
-                  <div className="search-result-card__footer">
-                    <span>{result.referenceAt ? formatShortDateTime(result.referenceAt) : "날짜 정보 없음"}</span>
-                    <a href={result.sourceUrl} target="_blank" rel="noreferrer">
-                      {result.sourceName}
-                    </a>
-                  </div>
-                </article>
-              ))}
+          <div className="search-result-group">
+            <div className="search-result-group__header">
+              <h3>우리 사이트 저장 결과</h3>
+              <span>{searchResult.localResults.length}개</span>
             </div>
-          ) : (
-            <div className="state-box state-box--empty">
-              검색 결과가 없습니다. 다른 키워드로 다시 검색해 보세요.
+
+            {searchResult.localResults.length ? (
+              <div className="search-results-grid">{searchResult.localResults.map(renderSearchResultCard)}</div>
+            ) : (
+              <div className="state-box state-box--empty">저장된 일정과 기사에서 일치하는 결과가 없습니다.</div>
+            )}
+          </div>
+
+          {searchResult.query ? (
+            <div className="search-result-group">
+              <div className="search-result-group__header">
+                <h3>웹 최신 기사</h3>
+                <span>{searchResult.webResults.length}개</span>
+              </div>
+
+              {searchResult.webResults.length ? (
+                <div className="search-results-grid">{searchResult.webResults.map(renderSearchResultCard)}</div>
+              ) : (
+                <div className="state-box state-box--empty">웹 최신 기사 검색 결과가 없습니다.</div>
+              )}
             </div>
-          )}
+          ) : null}
 
           {searchResult.relatedKeywords.length ? (
             <div className="related-keyword-list">
@@ -221,9 +301,7 @@ export function HomeDashboardPage({
 
       {errorMessage ? <div className="notice-banner">{errorMessage}</div> : null}
 
-      {isLoading ? (
-        <div className="panel dashboard-loading">홈 대시보드를 불러오는 중입니다...</div>
-      ) : null}
+      {isLoading ? <div className="panel dashboard-loading">홈 대시보드를 불러오는 중입니다...</div> : null}
 
       {!isLoading && dashboard ? (
         <>
@@ -237,21 +315,25 @@ export function HomeDashboardPage({
                 <span className="section-helper">{dashboard.dDayItems.length}개 예정</span>
               </div>
 
-              <div className="countdown-grid">
-                {dashboard.dDayItems.map((item) => (
-                  <article key={item.id} className="countdown-card">
-                    <span className="countdown-card__label">{item.ddayLabel}</span>
-                    <h3>{item.title}</h3>
-                    <p>{item.entityName}</p>
-                    <div className="countdown-card__footer">
-                      <span>{formatShortDateLabel(item.startAt)}</span>
-                      <a href={item.sourceUrl} target="_blank" rel="noreferrer">
-                        {item.sourceName}
-                      </a>
-                    </div>
-                  </article>
-                ))}
-              </div>
+              {dashboard.dDayItems.length ? (
+                <div className="countdown-grid">
+                  {dashboard.dDayItems.map((item) => (
+                    <article key={item.id} className="countdown-card">
+                      <span className="countdown-card__label">{item.ddayLabel}</span>
+                      <h3>{item.title}</h3>
+                      <p>{item.entityName}</p>
+                      <div className="countdown-card__footer">
+                        <span>{formatShortDateLabel(item.startAt)}</span>
+                        <a href={item.sourceUrl} target="_blank" rel="noreferrer">
+                          {item.sourceName}
+                        </a>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="state-box state-box--empty">구독 키워드 기준으로 다가오는 일정이 없습니다.</div>
+              )}
             </article>
 
             <article className="panel dashboard-section">
@@ -260,26 +342,30 @@ export function HomeDashboardPage({
                   <p className="section-eyebrow">곧 마감</p>
                   <h2 className="section-title">마감이 임박한 항목</h2>
                 </div>
-                <span className="section-helper">{dashboard.closingSoonItems.length}개 항목</span>
+                <span className="section-helper">상세 캘린더 기반 {dashboard.closingSoonItems.length}개</span>
               </div>
 
-              <div className="deadline-list">
-                {dashboard.closingSoonItems.map((item) => (
-                  <article key={item.id} className="deadline-card">
-                    <div>
-                      <span className="deadline-card__keyword">{item.keywordLabel}</span>
-                      <h3>{item.title}</h3>
-                    </div>
-                    <p>{item.summary}</p>
-                    <div className="deadline-card__footer">
-                      <span>{formatShortDateTime(item.closingAt)}</span>
-                      <a href={item.sourceUrl} target="_blank" rel="noreferrer">
-                        {item.sourceName}
-                      </a>
-                    </div>
-                  </article>
-                ))}
-              </div>
+              {dashboard.closingSoonItems.length ? (
+                <div className="deadline-list">
+                  {dashboard.closingSoonItems.map((item) => (
+                    <article key={item.id} className="deadline-card">
+                      <div>
+                        <span className="deadline-card__keyword">{item.keywordLabel}</span>
+                        <h3>{item.title}</h3>
+                      </div>
+                      <p>{item.summary}</p>
+                      <div className="deadline-card__footer">
+                        <span>{formatShortDateTime(item.closingAt)}</span>
+                        <a href={item.sourceUrl} target="_blank" rel="noreferrer">
+                          {item.sourceName}
+                        </a>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="state-box state-box--empty">상세 캘린더 기준으로 곧 마감될 항목이 없습니다.</div>
+              )}
             </article>
           </section>
 
@@ -314,42 +400,6 @@ export function HomeDashboardPage({
               </div>
             </section>
           ) : null}
-
-          <section className="panel dashboard-section">
-            <div className="dashboard-section__header">
-              <div>
-                <p className="section-eyebrow">이번 주</p>
-                <h2 className="section-title">이번 주 일정 요약</h2>
-              </div>
-              <span className="section-helper">{dashboard.weekSchedules.length}개 일정</span>
-            </div>
-
-            <div className="schedule-list">
-              {dashboard.weekSchedules.map((schedule) => (
-                <article key={schedule.id} className="schedule-card">
-                  <div className="schedule-card__topline">
-                    <strong>{schedule.title}</strong>
-                    <span>{formatShortDateLabel(schedule.startAt)}</span>
-                  </div>
-                  <p>{schedule.entityName}</p>
-                  <div className="schedule-card__footer">
-                    <span>{formatEventTimeRange(schedule.startAt, schedule.endAt || undefined)}</span>
-                    <a href={schedule.sourceUrl} target="_blank" rel="noreferrer">
-                      {schedule.sourceName}
-                    </a>
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            <div className="related-keyword-list">
-              {dashboard.subscribedKeywords.map((keyword) => (
-                <span key={keyword.id} className="keyword-summary-chip">
-                  {keyword.label}
-                </span>
-              ))}
-            </div>
-          </section>
         </>
       ) : null}
     </main>

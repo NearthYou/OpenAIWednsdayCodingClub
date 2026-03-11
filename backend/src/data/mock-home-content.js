@@ -11,7 +11,7 @@ function createSearchUrl(query) {
 
 const trendingKeywords = [
   { keywordId: "keyword-bluearchive", label: "블루 아카이브", searchCount: 18420, momentum: "+18%" },
-  { keywordId: "keyword-ive", label: "IVE", searchCount: 15980, momentum: "+12%" },
+  { keywordId: "keyword-ive", label: "아이브", searchCount: 15980, momentum: "+12%" },
   { keywordId: "keyword-genshin", label: "원신", searchCount: 14740, momentum: "+9%" },
   { keywordId: "keyword-miku", label: "하츠네 미쿠", searchCount: 11160, momentum: "+14%" },
   { keywordId: "keyword-bluearchive", label: "아비도스 굿즈", searchCount: 8240, momentum: "+21%" }
@@ -43,7 +43,7 @@ const discoveryItems = [
   {
     id: "discover-ive-stage-outfit",
     keywordId: "keyword-ive",
-    keywordLabel: "IVE",
+    keywordLabel: "아이브",
     kind: "article",
     title: "IVE 컴백 무드와 무대 의상 정리",
     summary: "컴백 티저와 함께 공개된 스타일링 포인트를 정리한 기사입니다.",

@@ -7,6 +7,7 @@ const {
   findUserByEmail,
   findUserById,
   getDefaultSubscriptionKeywordIds,
+  updateUserSubscriptionKeywordIds,
   verifyUserPassword
 } = require("../repositories/auth-repository");
 
@@ -16,7 +17,8 @@ function createHttpError(statusCode, message) {
   return error;
 }
 
-function sanitizeSubscriptionKeywordIds(subscriptionKeywordIds) {
+function sanitizeSubscriptionKeywordIds(subscriptionKeywordIds, options = {}) {
+  const fallbackToDefault = options.fallbackToDefault ?? true;
   const validKeywordIds = new Set(interestKeywords.map((keyword) => keyword.id));
 
   const normalizedIds = Array.isArray(subscriptionKeywordIds)
@@ -29,7 +31,7 @@ function sanitizeSubscriptionKeywordIds(subscriptionKeywordIds) {
     return [...new Set(normalizedIds)];
   }
 
-  return getDefaultSubscriptionKeywordIds();
+  return fallbackToDefault ? getDefaultSubscriptionKeywordIds() : [];
 }
 
 function sanitizeUser(user) {
@@ -123,6 +125,25 @@ function requireSessionUser(sessionToken) {
   return sessionPayload;
 }
 
+function updateSubscriptionKeywords(sessionToken, input = {}) {
+  const currentSession = findSession(sessionToken);
+
+  if (!currentSession) {
+    throw createHttpError(401, "로그인이 필요합니다.");
+  }
+
+  const nextSubscriptionKeywordIds = sanitizeSubscriptionKeywordIds(input.subscriptionKeywordIds, {
+    fallbackToDefault: false
+  });
+  const user = updateUserSubscriptionKeywordIds(currentSession.userId, nextSubscriptionKeywordIds);
+
+  if (!user) {
+    throw createHttpError(404, "사용자 정보를 찾을 수 없습니다.");
+  }
+
+  return buildSessionPayload(currentSession, user);
+}
+
 function logout(sessionToken) {
   if (!sessionToken) {
     return false;
@@ -137,5 +158,6 @@ module.exports = {
   login,
   logout,
   requireSessionUser,
-  signup
+  signup,
+  updateSubscriptionKeywords
 };

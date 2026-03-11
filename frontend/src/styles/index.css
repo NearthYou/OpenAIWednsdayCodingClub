@@ -141,12 +141,19 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(207, 105, 69, 0.18), rgba(76, 139, 120, 0.18));
-  color: var(--accent-dark);
-  font-weight: 700;
+  width: 52px;
+  height: 52px;
+  padding: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(207, 190, 167, 0.44);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.top-nav__brand-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .top-nav__brand-copy {
@@ -228,11 +235,24 @@ a {
   align-items: stretch;
 }
 
+.auth-layout--single {
+  grid-template-columns: minmax(0, 560px);
+  justify-content: center;
+}
+
 .auth-sidebar,
 .auth-card,
 .placeholder-page__card,
 .profile-card {
   padding: 28px;
+}
+
+.auth-card--single {
+  width: min(100%, 560px);
+  margin: 0 auto;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 249, 241, 0.94)),
+    rgba(255, 250, 242, 0.94);
 }
 
 .auth-sidebar {
@@ -292,6 +312,14 @@ a {
   gap: 16px;
 }
 
+.auth-card__header--stacked {
+  align-items: stretch;
+}
+
+.auth-card__header--stacked .auth-mode-switch {
+  align-self: flex-start;
+}
+
 .auth-mode-switch {
   display: inline-flex;
   padding: 4px;
@@ -319,6 +347,10 @@ a {
   gap: 16px;
   margin-top: 22px;
   max-width: 520px;
+}
+
+.auth-form--single {
+  max-width: none;
 }
 
 .auth-field {
@@ -380,6 +412,19 @@ a {
   cursor: pointer;
 }
 
+.home-subscription-chip {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
 .auth-keyword-chip.is-selected,
 .trending-keyword-chip.is-subscribed {
   border-color: var(--accent);
@@ -387,8 +432,24 @@ a {
 }
 
 .auth-keyword-chip small,
-.trending-keyword-chip small {
+.trending-keyword-chip small,
+.home-subscription-chip small {
   color: var(--text-muted);
+}
+
+.home-subscription-chip strong {
+  color: var(--accent-dark);
+  font-size: 0.85rem;
+}
+
+.home-subscription-chip.is-subscribed {
+  border-color: rgba(76, 139, 120, 0.3);
+  background: rgba(76, 139, 120, 0.08);
+}
+
+.home-subscription-chip:disabled {
+  cursor: wait;
+  opacity: 0.8;
 }
 
 .auth-submit-button {
@@ -511,6 +572,7 @@ a {
   font-size: 1.2rem;
   line-height: 1.45;
   word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 .search-panel,
@@ -532,6 +594,13 @@ a {
 .dashboard-loading {
   margin-top: 18px;
   padding: 24px;
+}
+
+.home-subscription-chip-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
 }
 
 .search-composer__form {
@@ -722,6 +791,28 @@ a {
   margin-bottom: 8px;
 }
 
+.search-result-group + .search-result-group {
+  margin-top: 24px;
+}
+
+.search-result-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.search-result-group__header h3 {
+  margin: 0;
+  font-size: 1.04rem;
+}
+
+.search-result-group__header span {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
 .search-results-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 18px;
@@ -789,6 +880,7 @@ a {
 }
 
 .keyword-chip:hover,
+.home-subscription-chip:hover,
 .filter-option:hover,
 .calendar-day:hover,
 .month-nav__button:hover,
@@ -1077,6 +1169,7 @@ a {
 
 .status-badge,
 .category-badge,
+.source-scope-badge,
 .tag-chip {
   display: inline-flex;
   align-items: center;
@@ -1119,6 +1212,26 @@ a {
 .category-badge {
   background: rgba(42, 30, 20, 0.07);
   color: var(--text-muted);
+}
+
+.source-scope-badge {
+  background: rgba(42, 30, 20, 0.08);
+  color: var(--text-muted);
+}
+
+.source-scope-badge--calendar {
+  background: rgba(212, 159, 75, 0.16);
+  color: #8d5b0d;
+}
+
+.source-scope-badge--stored {
+  background: rgba(76, 139, 120, 0.12);
+  color: var(--official);
+}
+
+.source-scope-badge--web {
+  background: rgba(184, 109, 143, 0.12);
+  color: var(--rumor);
 }
 
 .event-card__content {
@@ -1499,6 +1612,10 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .home-subscription-chip-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .event-list-panel {
     grid-column: 1 / -1;
   }
@@ -1565,6 +1682,7 @@ a {
   }
 
   .auth-keyword-grid,
+  .home-subscription-chip-list,
   .countdown-grid,
   .search-composer__form {
     grid-template-columns: 1fr;

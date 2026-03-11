@@ -158,6 +158,21 @@ export async function fetchSession(sessionToken: string): Promise<AuthSessionPay
   });
 }
 
+export async function updateUserSubscriptions(
+  sessionToken: string,
+  subscriptionKeywordIds: string[]
+): Promise<AuthSessionPayload> {
+  return requestJson<AuthSessionPayload>("/api/auth/subscriptions", {
+    method: "PATCH",
+    headers: createSessionHeaders(sessionToken, {
+      "Content-Type": "application/json"
+    }),
+    body: JSON.stringify({
+      subscriptionKeywordIds
+    })
+  });
+}
+
 export async function logoutUser(sessionToken: string): Promise<void> {
   const response = await fetch(createApiUrl("/api/auth/logout"), {
     method: "POST",

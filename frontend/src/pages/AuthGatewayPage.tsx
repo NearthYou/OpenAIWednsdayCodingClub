@@ -81,37 +81,14 @@ export function AuthGatewayPage({
 
   return (
     <main className="page-shell auth-page">
-      <section className="auth-layout">
-        <article className="panel auth-sidebar">
-          <p className="hero-eyebrow">덕질 일정 MVP</p>
-          <h1 className="auth-sidebar__title">좋아하는 작품과 아티스트의 변화를 한 화면에서 따라가는 홈.</h1>
-          <p className="auth-sidebar__description">
-            먼저 로그인한 뒤 개인화된 홈 대시보드로 들어갑니다. 홈에서는 구독 키워드, 캘린더 일정,
-            검색 결과, 마감 임박 항목을 한 번에 확인할 수 있습니다.
-          </p>
-
-          <div className="auth-sidebar__stack">
-            <div className="auth-sidebar__card">
-              <span>검색</span>
-              <strong>기사, 일정, 인기 키워드를 한 번에 보는 홈 검색</strong>
-            </div>
-            <div className="auth-sidebar__card">
-              <span>캘린더 연동</span>
-              <strong>D-day, 오늘 일정, 이번 주 일정을 구독 키워드 기준으로 연결</strong>
-            </div>
-            <div className="auth-sidebar__card">
-              <span>병렬 개발 대응</span>
-              <strong>홈, 캘린더, 페이지2, 페이지3, 마이페이지를 라우트 단위로 분리</strong>
-            </div>
-          </div>
-        </article>
-
-        <section className="panel auth-card">
-          <div className="auth-card__header">
+      <section className="auth-layout auth-layout--single">
+        <section className="panel auth-card auth-card--single">
+          <div className="auth-card__header auth-card__header--stacked">
             <div>
-              <p className="section-eyebrow">인증</p>
-              <h2 className="section-title">회원가입 또는 로그인</h2>
+              <p className="section-eyebrow">덕통사고</p>
+              <h1 className="section-title">{mode === "login" ? "로그인" : "회원가입"}</h1>
             </div>
+
             <div className="auth-mode-switch" role="tablist" aria-label="인증 모드">
               <button
                 className={mode === "login" ? "is-active" : ""}
@@ -130,7 +107,7 @@ export function AuthGatewayPage({
             </div>
           </div>
 
-          <form className="auth-form" onSubmit={handleSubmit}>
+          <form className="auth-form auth-form--single" onSubmit={handleSubmit}>
             {mode === "signup" ? (
               <label className="auth-field">
                 <span>닉네임</span>
@@ -149,7 +126,7 @@ export function AuthGatewayPage({
             ) : null}
 
             <label className="auth-field">
-              <span>이메일</span>
+              <span>{mode === "login" ? "아이디" : "이메일"}</span>
               <input
                 type="email"
                 autoComplete={mode === "login" ? "email" : "username"}
@@ -222,7 +199,7 @@ export function AuthGatewayPage({
                     })}
                   </div>
                   <small className="auth-field__helper">
-                    선택하지 않으면 MVP 기본 관심 키워드가 자동으로 적용됩니다.
+                    선택하지 않으면 기본 관심 키워드가 자동으로 적용됩니다.
                   </small>
                 </div>
               </>
@@ -233,14 +210,9 @@ export function AuthGatewayPage({
             ) : null}
 
             <button className="auth-submit-button" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "처리 중..." : mode === "login" ? "홈으로 로그인" : "계정 만들기"}
+              {isSubmitting ? "처리 중..." : mode === "login" ? "로그인" : "회원가입"}
             </button>
           </form>
-
-          <div className="auth-demo-box">
-            <span>빠른 체험 계정</span>
-            <strong>demo@ducking.club / demo1234</strong>
-          </div>
         </section>
       </section>
     </main>

@@ -1,3 +1,4 @@
+import duckFacePictogram from "../assets/duck-face-pictogram.svg";
 import { APP_NAVIGATION_ITEMS, APP_ROUTE_PATHS, type AppRoutePath } from "../constants/app-routes";
 
 interface MainNavigationBarProps {
@@ -21,10 +22,12 @@ export function MainNavigationBar({
           type="button"
           onClick={() => onNavigate(APP_ROUTE_PATHS.home)}
         >
-          <span className="top-nav__brand-mark">DC</span>
+          <span className="top-nav__brand-mark">
+            <img className="top-nav__brand-icon" src={duckFacePictogram} alt="덕통사고 오리 얼굴 아이콘" />
+          </span>
           <span className="top-nav__brand-copy">
-            <strong>덕질 클럽</strong>
-            <small>메인 홈 도메인</small>
+            <strong>덕통사고</strong>
+            <small>덕질 일정 메인 홈</small>
           </span>
         </button>
 

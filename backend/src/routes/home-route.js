@@ -25,10 +25,10 @@ router.get("/dashboard", (request, response) => {
   }
 });
 
-router.get("/search", (request, response) => {
+router.get("/search", async (request, response) => {
   try {
     const session = requireSessionUser(getSessionToken(request));
-    response.json(searchDiscovery(session.user, request.query.q || ""));
+    response.json(await searchDiscovery(session.user, request.query.q || ""));
   } catch (error) {
     sendError(response, error);
   }

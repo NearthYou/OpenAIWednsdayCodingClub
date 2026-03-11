@@ -1,8 +1,9 @@
 import type { SourceType } from "./event";
 
 export type HomeSearchResultKind = "article" | "schedule" | "deadline";
+export type HomeSearchSourceScope = "calendar" | "stored" | "web";
 
-export interface SubscribedKeywordSummary {
+export interface HomeKeywordOption {
   id: string;
   label: string;
   group: string;
@@ -51,7 +52,8 @@ export interface TrendingKeywordSummary {
 
 export interface HomeDashboardPayload {
   userName: string;
-  subscribedKeywords: SubscribedKeywordSummary[];
+  availableKeywords: HomeKeywordOption[];
+  subscribedKeywords: HomeKeywordOption[];
   nextHighlight: string | null;
   todaySchedules: HomeScheduleSummary[];
   weekSchedules: HomeScheduleSummary[];
@@ -63,6 +65,7 @@ export interface HomeDashboardPayload {
 export interface HomeSearchResult {
   id: string;
   kind: HomeSearchResultKind;
+  sourceScope: HomeSearchSourceScope;
   title: string;
   summary: string;
   keywordLabel: string;
@@ -73,6 +76,7 @@ export interface HomeSearchResult {
 
 export interface HomeSearchResponse {
   query: string;
-  results: HomeSearchResult[];
+  localResults: HomeSearchResult[];
+  webResults: HomeSearchResult[];
   relatedKeywords: TrendingKeywordSummary[];
 }

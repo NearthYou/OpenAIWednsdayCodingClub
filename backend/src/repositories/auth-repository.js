@@ -51,6 +51,21 @@ function createUser({ displayName, email, password, subscriptionKeywordIds }) {
   return { ...user };
 }
 
+function updateUserSubscriptionKeywordIds(userId, subscriptionKeywordIds) {
+  const user = users.find((currentUser) => currentUser.id === userId);
+
+  if (!user) {
+    return null;
+  }
+
+  user.subscriptionKeywordIds = [...subscriptionKeywordIds];
+
+  return {
+    ...user,
+    subscriptionKeywordIds: [...user.subscriptionKeywordIds]
+  };
+}
+
 function verifyUserPassword(user, password) {
   return user.passwordHash === hashPassword(password);
 }
@@ -91,5 +106,6 @@ module.exports = {
   getDefaultSubscriptionKeywordIds,
   hashPassword,
   normalizeEmail,
+  updateUserSubscriptionKeywordIds,
   verifyUserPassword
 };
