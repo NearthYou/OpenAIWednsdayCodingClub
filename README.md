@@ -1,20 +1,27 @@
 <p align="center">
   <img
-    src="https://capsule-render.vercel.app/api?type=waving&height=260&color=0:f9a8d4,30:fbcfe8,60:c4b5fd,100:93c5fd&text=%EB%8D%95%EC%A7%88%20%EC%BA%98%EB%A6%B0%EB%8D%94&fontColor=ffffff&fontSize=48&fontAlignY=38&animation=fadeIn&desc=%EB%86%93%EC%B9%98%EA%B8%B0%20%EC%89%AC%EC%9A%B4%20%ED%8C%AC%EB%8D%A4%20%EC%9D%BC%EC%A0%95%EC%9D%84%20%ED%95%9C%20%EA%B3%B3%EC%97%90&descAlignY=58&descSize=18"
+    src="https://capsule-render.vercel.app/api?type=waving&height=260&color=0:fbcfe8,40:f9a8d4,70:c4b5fd,100:93c5fd&text=덕통사고&fontColor=ffffff&fontSize=60&fontAlignY=38&animation=twinkling&desc=최애%20일정%20놓치지%20않는%20팬덤%20캘린더&descAlignY=58&descSize=20"
     width="100%"
   />
 </p>
 
 <p align="center">
   <img
-    src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=26&duration=2800&pause=900&color=F472B6&center=true&vCenter=true&width=700&lines=%EC%BB%B4%EB%B0%B1%2C+%EA%B5%BF%EC%A6%88%2C+%ED%96%89%EC%82%AC+%EC%9D%BC%EC%A0%95%EC%9D%84+%ED%95%9C%EB%88%88%EC%97%90;%EC%B5%9C%EC%95%A0+%EC%8A%A4%EC%BC%80%EC%A4%84%EC%9D%84+%EB%86%93%EC%B9%98%EC%A7%80+%EC%95%8A%EA%B2%8C;%EB%82%B4+%EB%8D%95%EC%A7%88%EC%9D%84+%EC%BA%98%EB%A6%B0%EB%8D%94%EB%A1%9C+%EC%A0%95%EB%A6%AC"
+    src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=26&duration=2800&pause=900&color=F472B6&center=true&vCenter=true&width=700&lines=%EC%BB%B4%EB%B0%B1%2C+%EA%B5%BF%EC%A6%88%2C+%ED%96%89%EC%82%AC+%EC%9D%BC%EC%A0%95%EC%9D%84+%ED%95%9C%EB%88%88%EC%97%90;%EC%B5%9C%EC%95%A0+%EC%8A%A4%EC%BC%80%EC%A4%84%EC%9D%84+%EB%86%93%EC%B9%98%EC%A7%80+%EC%95%8A%EA%B2%8C;%EB%8D%95%EC%A7%88%EC%9D%80+%EA%B3%84%ED%9A%8D%EC%9D%B4%EB%8B%A4"
     alt="Typing SVG"
   />
 </p>
 
 <p align="center">
-  ⋆｡°✩ 놓치지 말자, 나의 최애 일정 ✩°｡⋆
+  <img src="https://img.shields.io/badge/Fandom-K--POP-ff69b4?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Anime-Schedule-a78bfa?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Goods-Release-60a5fa?style=for-the-badge"/>
 </p>
+
+<p align="center">
+  💥 덕질은 사고처럼 찾아온다 — 그래서 이름도 <b>덕통사고</b>
+</p>
+
 <p align="center">
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react" />
   <img src="https://img.shields.io/badge/Vite-6-646CFF?style=for-the-badge&logo=vite" />
