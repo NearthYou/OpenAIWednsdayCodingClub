@@ -1,23 +1,20 @@
 {
-  "name": "market-pulse-radar",
-  "version": "0.1.0",
+  "name": "fandom-schedule-calendar-mvp",
+  "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "fast-xml-parser": "^5.5.1",
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "dev": "concurrently \"npm run dev --workspace backend\" \"npm run dev --workspace frontend\"",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "dev:backend": "npm run dev --workspace backend",
+    "build": "npm run build --workspace frontend",
+    "typecheck": "npm run typecheck --workspace frontend",
+    "start": "npm run start --workspace backend"
   },
   "devDependencies": {
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "typescript": "latest"
+    "concurrently": "^9.1.2"
   }
 }
