@@ -210,21 +210,6 @@ npm run build --workspace frontend
 
 ---
 
-## 빠른 실행
-
-```bash
-npm install
-npm run dev
-```
-
-frontend  
-http://localhost:5173
-
-backend  
-http://localhost:4000
-
----
-
 ## 환경 변수
 
 루트 `.env`
@@ -268,26 +253,6 @@ npm run dev:backend
 npm run build
 npm run build:vercel
 npm run typecheck
-```
-
----
-
-## 확장 포인트
-
-현재 인증 / 사용자 데이터 / 저장 일정은
-
-- in-memory
-- localStorage
-
-기반으로 동작합니다.
-
-실서비스 전환 시 다음 영역 교체가 필요합니다.
-
-```
-backend/src/repositories/*
-backend/src/services/auth-service.js
-frontend/src/utils/saved-schedules.ts
-backend/src/services/home-web-search-service.js
 ```
 
 ---
