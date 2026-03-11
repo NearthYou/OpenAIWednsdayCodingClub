@@ -4,11 +4,12 @@ import type { EventItem } from "../types/event";
 
 interface EventCardProps {
   event: EventItem;
+  onSelect?: (event: EventItem) => void;
 }
 
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({ event, onSelect }: EventCardProps) {
   return (
-    <article className="event-card">
+    <article className={["event-card", onSelect ? "is-interactive" : ""].filter(Boolean).join(" ")}>
       <div className="event-card__meta">
         <span className={`status-badge status-badge--${event.sourceType}`}>
           {SOURCE_TYPE_LABELS[event.sourceType]}
@@ -43,6 +44,18 @@ export function EventCard({ event }: EventCardProps) {
           </span>
         ))}
       </div>
+
+      {onSelect ? (
+        <div className="event-card__footer">
+          <button
+            className="text-button event-card__button"
+            type="button"
+            onClick={() => onSelect(event)}
+          >
+            상세 보기
+          </button>
+        </div>
+      ) : null}
     </article>
   );
 }

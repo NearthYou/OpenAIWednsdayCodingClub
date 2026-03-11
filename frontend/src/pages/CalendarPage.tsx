@@ -6,6 +6,7 @@ import { KeywordSubscriptionChips } from "../components/KeywordSubscriptionChips
 import { MonthCalendar } from "../components/MonthCalendar";
 import { SearchBar } from "../components/SearchBar";
 import { fallbackEvents, fallbackKeywords } from "../data/fallback-data";
+import { EventDetailPage } from "./EventDetailPage";
 import type { EventCategory, EventItem, InterestKeyword, SourceType } from "../types/event";
 import { getDefaultSelectedDate, getEventDateKey, getMonthKey, formatMonthLabel } from "../utils/date";
 import { filterEvents } from "../utils/event-filters";
@@ -36,6 +37,7 @@ export function CalendarPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUsingFallback, setIsUsingFallback] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const monthKey = getMonthKey(month);
 
@@ -126,6 +128,10 @@ export function CalendarPage() {
     (event) => getEventDateKey(event) === selectedDate
   );
 
+  if (selectedEvent) {
+    return <EventDetailPage event={selectedEvent} onBack={() => setSelectedEvent(null)} />;
+  }
+
   function handleMonthChange(offset: number) {
     setMonth((currentMonth) => new Date(currentMonth.getFullYear(), currentMonth.getMonth() + offset, 1));
   }
@@ -207,7 +213,12 @@ export function CalendarPage() {
           onDateSelect={setSelectedDate}
         />
 
-        <EventList selectedDate={selectedDate} events={selectedDateEvents} isLoading={isLoading} />
+        <EventList
+          selectedDate={selectedDate}
+          events={selectedDateEvents}
+          isLoading={isLoading}
+          onEventSelect={setSelectedEvent}
+        />
       </section>
     </main>
   );
