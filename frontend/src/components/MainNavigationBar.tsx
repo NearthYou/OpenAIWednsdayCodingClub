@@ -67,7 +67,12 @@ export function MainNavigationBar({
               <UserRound size={14} strokeWidth={2.1} aria-hidden="true" />
               <span>로그인 중</span>
             </span>
-            <strong>{userName}님</strong>
+            <span className="top-nav__user-name">
+              <span className="top-nav__user-mark" aria-hidden="true">
+                <img className="top-nav__user-mark-icon" src={duckFacePictogram} alt="" />
+              </span>
+              <strong>{userName}</strong>
+            </span>
           </div>
           <button className="text-button top-nav__logout" type="button" onClick={onLogout}>
             <LogOut size={15} strokeWidth={2.1} aria-hidden="true" />

@@ -25,3 +25,7 @@ export interface SignupRequest {
   password: string;
   subscriptionKeywordIds: string[];
 }
+
+export interface UpdateProfileRequest {
+  displayName: string;
+}
