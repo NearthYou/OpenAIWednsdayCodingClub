@@ -8,6 +8,9 @@ interface GoodsReleaseCardProps {
 }
 
 export function GoodsReleaseCard({ item }: GoodsReleaseCardProps) {
+  const visibleTags = item.tags.slice(0, 2);
+  const hiddenTagCount = Math.max(0, item.tags.length - visibleTags.length);
+
   return (
     <article className="goods-card">
       <div className="goods-card__meta">
@@ -50,11 +53,12 @@ export function GoodsReleaseCard({ item }: GoodsReleaseCardProps) {
 
       <div className="tag-list">
         <span className="tag-chip">#{item.sourceName}</span>
-        {item.tags.map((tag) => (
+        {visibleTags.map((tag) => (
           <span key={`${item.id}-${tag}`} className="tag-chip">
             #{tag}
           </span>
         ))}
+        {hiddenTagCount > 0 ? <span className="tag-chip">+{hiddenTagCount}</span> : null}
       </div>
     </article>
   );
