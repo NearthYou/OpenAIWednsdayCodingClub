@@ -1,0 +1,13 @@
+{
+  "name": "openai-wednsday-coding-club",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace frontend",
+    "server": "npm run dev --workspace backend",
+    "build": "npm run build --workspace frontend"
+  }
+}
