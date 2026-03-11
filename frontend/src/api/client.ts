@@ -1,4 +1,5 @@
 import type { EventCategory, EventItem, InterestKeyword, SourceType } from "../types/event";
+import type { GoodsItem, GoodsReleaseType } from "../types/goods";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
 
@@ -6,6 +7,14 @@ interface FetchEventsParams {
   month: string;
   search?: string;
   categories?: EventCategory[];
+  sourceTypes?: SourceType[];
+  keywords?: string[];
+}
+
+interface FetchGoodsParams {
+  month: string;
+  search?: string;
+  releaseTypes?: GoodsReleaseType[];
   sourceTypes?: SourceType[];
   keywords?: string[];
 }
@@ -20,6 +29,29 @@ function buildEventsQuery(params: FetchEventsParams) {
 
   if (params.categories?.length) {
     searchParams.set("category", params.categories.join(","));
+  }
+
+  if (params.sourceTypes?.length) {
+    searchParams.set("sourceType", params.sourceTypes.join(","));
+  }
+
+  if (params.keywords?.length) {
+    searchParams.set("keyword", params.keywords.join(","));
+  }
+
+  return searchParams.toString();
+}
+
+function buildGoodsQuery(params: FetchGoodsParams) {
+  const searchParams = new URLSearchParams();
+  searchParams.set("month", params.month);
+
+  if (params.search) {
+    searchParams.set("search", params.search);
+  }
+
+  if (params.releaseTypes?.length) {
+    searchParams.set("releaseType", params.releaseTypes.join(","));
   }
 
   if (params.sourceTypes?.length) {
@@ -53,6 +85,17 @@ export async function fetchEventDetail(id: string): Promise<EventItem> {
 
   const payload = (await response.json()) as { event: EventItem };
   return payload.event;
+}
+
+export async function fetchGoods(params: FetchGoodsParams): Promise<GoodsItem[]> {
+  const response = await fetch(`${API_BASE_URL}/api/goods?${buildGoodsQuery(params)}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch goods");
+  }
+
+  const payload = (await response.json()) as { goods: GoodsItem[] };
+  return payload.goods;
 }
 
 export async function fetchKeywords(): Promise<InterestKeyword[]> {
