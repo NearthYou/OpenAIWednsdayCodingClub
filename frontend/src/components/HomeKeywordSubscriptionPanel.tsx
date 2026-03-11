@@ -1,4 +1,9 @@
 import { useMemo, useState } from "react";
+import keywordAespaImage from "../assets/keyword-aespa.jpg";
+import keywordInfiniteImage from "../assets/keyword-infinite.jpg";
+import keywordIveImage from "../assets/keyword-ive.jpg";
+import keywordLesserafimImage from "../assets/keyword-lesserafim.jpg";
+import keywordVixxImage from "../assets/keyword-vixx.jpg";
 import type { HomeKeywordOption } from "../types/home";
 
 const keywordImageMap: Record<string, string> = {
@@ -97,7 +102,7 @@ export function HomeKeywordSubscriptionPanel({
       <div className="home-subscription-chip-list">
         {visibleKeywords.map((keyword) => {
           const isSubscribed = subscribedKeywordIds.includes(keyword.id);
-          const imageUrl = getKeywordImage(keyword.label);
+          const imageUrl = keywordImageMap[keyword.label];
 
           return (
             <button
