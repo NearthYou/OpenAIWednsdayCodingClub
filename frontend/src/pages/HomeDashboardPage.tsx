@@ -61,6 +61,7 @@ export function HomeDashboardPage({
   const [searchResult, setSearchResult] = useState<HomeSearchResponse | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchErrorMessage, setSearchErrorMessage] = useState("");
+  const [hideUnsubscribedSearchKeywords, setHideUnsubscribedSearchKeywords] = useState(true);
   const [selectedDetailItem, setSelectedDetailItem] = useState<DetailPageItem | null>(null);
   const searchSectionRef = useRef<HTMLElement | null>(null);
 
@@ -188,6 +189,12 @@ export function HomeDashboardPage({
 
   const subscribedKeywordIds = getSubscribedKeywordIds(dashboard, currentUser);
   const availableKeywords = dashboard?.availableKeywords || [];
+  const visibleTrendingKeywords = (dashboard?.trendingKeywords || []).filter(
+    (keyword) => !hideUnsubscribedSearchKeywords || keyword.isSubscribed
+  );
+  const visibleRelatedKeywords = (searchResult?.relatedKeywords || []).filter(
+    (keyword) => !hideUnsubscribedSearchKeywords || keyword.isSubscribed
+  );
 
   return (
     <main className="page-shell home-page">
@@ -244,9 +251,18 @@ export function HomeDashboardPage({
             <p className="section-eyebrow">검색</p>
             <h2 className="section-title">저장된 일정과 웹 최신 기사 함께 찾기</h2>
           </div>
-          <span className="section-helper">
-            입력한 키워드 기준으로 우리 사이트 저장 결과와 웹 최신 기사를 함께 보여줍니다.
-          </span>
+          <div className="panel-inline-actions">
+            <span className="section-helper">
+              입력한 키워드 기준으로 우리 사이트 저장 결과와 웹 최신 기사를 함께 보여줍니다.
+            </span>
+            <button
+              className="text-button"
+              type="button"
+              onClick={() => setHideUnsubscribedSearchKeywords((current) => !current)}
+            >
+              {hideUnsubscribedSearchKeywords ? "미구독 보기" : "미구독 숨기기"}
+            </button>
+          </div>
         </div>
 
         <form className="search-composer__form" onSubmit={handleSearchSubmit}>
@@ -271,19 +287,25 @@ export function HomeDashboardPage({
         </div>
 
         <div className="trending-keyword-row">
-          {(dashboard?.trendingKeywords || []).map((keyword) => (
-            <button
-              key={`${keyword.keywordId}-${keyword.label}`}
-              className={`trending-keyword-chip${keyword.isSubscribed ? " is-subscribed" : ""}`}
-              type="button"
-              onClick={() => void runSearch(keyword.label)}
-            >
-              <span>{keyword.label}</span>
-              <small>
-                {keyword.searchCount.toLocaleString()} / {keyword.momentum}
-              </small>
-            </button>
-          ))}
+          {visibleTrendingKeywords.length ? (
+            visibleTrendingKeywords.map((keyword) => (
+              <button
+                key={`${keyword.keywordId}-${keyword.label}`}
+                className={`trending-keyword-chip${keyword.isSubscribed ? " is-subscribed" : ""}`}
+                type="button"
+                onClick={() => void runSearch(keyword.label)}
+              >
+                <span>{keyword.label}</span>
+                <small>
+                  {keyword.searchCount.toLocaleString()} / {keyword.momentum}
+                </small>
+              </button>
+            ))
+          ) : (
+            <div className="state-box state-box--empty search-keyword-empty">
+              현재 구독 중인 키워드만 보이도록 설정되어 있습니다.
+            </div>
+          )}
         </div>
       </section>
 
@@ -331,9 +353,9 @@ export function HomeDashboardPage({
             </div>
           ) : null}
 
-          {searchResult.relatedKeywords.length ? (
+          {visibleRelatedKeywords.length ? (
             <div className="related-keyword-list">
-              {searchResult.relatedKeywords.map((keyword) => (
+              {visibleRelatedKeywords.map((keyword) => (
                 <button
                   key={`related-${keyword.keywordId}-${keyword.label}`}
                   className="text-button"
@@ -343,6 +365,10 @@ export function HomeDashboardPage({
                   {keyword.label}
                 </button>
               ))}
+            </div>
+          ) : searchResult.relatedKeywords.length && hideUnsubscribedSearchKeywords ? (
+            <div className="state-box state-box--empty search-keyword-empty">
+              미구독 키워드가 숨겨져 있어 관련 키워드가 표시되지 않습니다.
             </div>
           ) : null}
         </section>

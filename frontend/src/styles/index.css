@@ -774,6 +774,14 @@ a {
   font-size: 0.92rem;
 }
 
+.panel-inline-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .search-input-wrap {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -928,6 +936,10 @@ a {
 
 .search-result-group + .search-result-group {
   margin-top: 24px;
+}
+
+.search-keyword-empty {
+  margin-top: 0;
 }
 
 .search-result-group__header {
@@ -1810,6 +1822,10 @@ a {
   .profile-grid,
   .search-results-grid {
     grid-template-columns: 1fr;
+  }
+
+  .panel-inline-actions {
+    justify-content: flex-start;
   }
 }
 
