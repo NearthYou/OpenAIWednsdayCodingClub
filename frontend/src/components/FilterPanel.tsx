@@ -1,3 +1,4 @@
+import { RotateCcw, ShieldCheck, SlidersHorizontal, Tags } from "lucide-react";
 import { CATEGORY_OPTIONS, SOURCE_TYPE_OPTIONS } from "../constants/filter-options";
 import type { EventCategory, SourceType } from "../types/event";
 
@@ -27,11 +28,15 @@ export function FilterPanel({
     <aside className="panel filter-panel">
       <div className="filter-panel__top">
         <div>
-          <p className="section-eyebrow">필터</p>
+          <p className="section-eyebrow filter-heading">
+            <SlidersHorizontal size={15} strokeWidth={2.1} aria-hidden="true" />
+            <span>필터</span>
+          </p>
           <h2 className="section-title">조건 조합</h2>
         </div>
         <button className="text-button" type="button" onClick={onReset}>
-          전체 보기
+          <RotateCcw size={15} strokeWidth={2.1} aria-hidden="true" />
+          <span>전체 보기</span>
         </button>
       </div>
 
@@ -41,7 +46,10 @@ export function FilterPanel({
       </div>
 
       <div className="filter-group">
-        <h3 className="filter-group__title">카테고리</h3>
+        <h3 className="filter-group__title filter-group__title--with-icon">
+          <Tags size={15} strokeWidth={2.1} aria-hidden="true" />
+          <span>카테고리</span>
+        </h3>
         <div className="filter-option-list">
           {CATEGORY_OPTIONS.map((option) => {
             const isActive = isViewingAllCategories || selectedCategories.includes(option.value);
@@ -61,7 +69,10 @@ export function FilterPanel({
       </div>
 
       <div className="filter-group">
-        <h3 className="filter-group__title">출처 유형</h3>
+        <h3 className="filter-group__title filter-group__title--with-icon">
+          <ShieldCheck size={15} strokeWidth={2.1} aria-hidden="true" />
+          <span>출처 유형</span>
+        </h3>
         <div className="filter-option-list">
           {SOURCE_TYPE_OPTIONS.map((option) => {
             const isActive = isViewingAllSourceTypes || selectedSourceTypes.includes(option.value);

@@ -1,3 +1,5 @@
+import { Search } from "lucide-react";
+
 interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
@@ -12,7 +14,7 @@ export function SearchBar({
   value,
   onChange,
   eyebrow = "자연어 검색",
-  helperText = "키워드 포함 검색으로 빠르게 필터링됩니다.",
+  helperText = "키워드와 검색어를 함께 넣어 빠르게 원하는 일정을 찾을 수 있어요.",
   placeholder = "이번 주 블루아카 행사 뭐 있어?",
   iconLabel = "검색",
   inputId = "event-search"
@@ -24,7 +26,10 @@ export function SearchBar({
         <span className="section-helper">{helperText}</span>
       </div>
       <label className="search-input-wrap" htmlFor={inputId}>
-        <span className="search-input-wrap__icon">{iconLabel}</span>
+        <span className="search-input-wrap__icon" aria-hidden="true">
+          <Search size={18} strokeWidth={2.2} />
+          <span>{iconLabel}</span>
+        </span>
         <input
           id={inputId}
           className="search-input"
