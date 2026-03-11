@@ -1,6 +1,7 @@
 const cors = require("cors");
 const express = require("express");
 const eventsRoute = require("./routes/events-route");
+const goodsRoute = require("./routes/goods-route");
 const keywordsRoute = require("./routes/keywords-route");
 
 const app = express();
@@ -21,6 +22,7 @@ app.get("/api/health", (request, response) => {
 });
 
 app.use("/api/events", eventsRoute);
+app.use("/api/goods", goodsRoute);
 app.use("/api/keywords", keywordsRoute);
 
 module.exports = {
