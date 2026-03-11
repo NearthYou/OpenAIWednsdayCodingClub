@@ -1,3 +1,4 @@
+import { CalendarDays, Gift, Home, LogOut, UserRound } from "lucide-react";
 import duckFacePictogram from "../assets/duck-face-pictogram.svg";
 import { APP_NAVIGATION_ITEMS, APP_ROUTE_PATHS, type AppRoutePath } from "../constants/app-routes";
 
@@ -6,6 +7,21 @@ interface MainNavigationBarProps {
   userName: string;
   onNavigate: (path: AppRoutePath) => void;
   onLogout: () => void;
+}
+
+function getNavigationIcon(path: AppRoutePath) {
+  switch (path) {
+    case APP_ROUTE_PATHS.home:
+      return <Home size={16} strokeWidth={2.1} aria-hidden="true" />;
+    case APP_ROUTE_PATHS.calendar:
+      return <CalendarDays size={16} strokeWidth={2.1} aria-hidden="true" />;
+    case APP_ROUTE_PATHS.pageTwo:
+      return <Gift size={16} strokeWidth={2.1} aria-hidden="true" />;
+    case APP_ROUTE_PATHS.myPage:
+      return <UserRound size={16} strokeWidth={2.1} aria-hidden="true" />;
+    default:
+      return null;
+  }
 }
 
 export function MainNavigationBar({
@@ -23,11 +39,11 @@ export function MainNavigationBar({
           onClick={() => onNavigate(APP_ROUTE_PATHS.home)}
         >
           <span className="top-nav__brand-mark">
-            <img className="top-nav__brand-icon" src={duckFacePictogram} alt="덕통사고 오리 얼굴 아이콘" />
+            <img className="top-nav__brand-icon" src={duckFacePictogram} alt="덕통사고 로고" />
           </span>
           <span className="top-nav__brand-copy">
             <strong>덕통사고</strong>
-            <small>덕질 일정 메인 홈</small>
+            <small>덕후 일정 메인 허브</small>
           </span>
         </button>
 
@@ -39,18 +55,23 @@ export function MainNavigationBar({
               type="button"
               onClick={() => onNavigate(item.path)}
             >
-              {item.label}
+              <span className="top-nav__link-icon">{getNavigationIcon(item.path)}</span>
+              <span>{item.label}</span>
             </button>
           ))}
         </nav>
 
         <div className="top-nav__actions">
           <div className="top-nav__user">
-            <span className="top-nav__user-label">로그인 중</span>
+            <span className="top-nav__user-label">
+              <UserRound size={14} strokeWidth={2.1} aria-hidden="true" />
+              <span>로그인 중</span>
+            </span>
             <strong>{userName}님</strong>
           </div>
           <button className="text-button top-nav__logout" type="button" onClick={onLogout}>
-            로그아웃
+            <LogOut size={15} strokeWidth={2.1} aria-hidden="true" />
+            <span>로그아웃</span>
           </button>
         </div>
       </div>
