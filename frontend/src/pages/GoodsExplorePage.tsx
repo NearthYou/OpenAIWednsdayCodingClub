@@ -50,8 +50,6 @@ export function GoodsExplorePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [interestKeywords, setInterestKeywords] = useState<InterestKeyword[]>(fallbackKeywords);
   const [isLoading, setIsLoading] = useState(true);
-  const [isUsingFallback, setIsUsingFallback] = useState(false);
-  const [noticeMessage, setNoticeMessage] = useState("");
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const monthKey = getMonthKey(month);
 
@@ -84,7 +82,6 @@ export function GoodsExplorePage() {
 
     async function loadGoods() {
       setIsLoading(true);
-      setNoticeMessage("");
 
       try {
         const goods = await fetchGoods({ month: monthKey });
@@ -94,15 +91,12 @@ export function GoodsExplorePage() {
         }
 
         setFetchedGoods(goods);
-        setIsUsingFallback(false);
       } catch {
         if (!isMounted) {
           return;
         }
 
         setFetchedGoods(getFallbackGoodsByMonth(monthKey));
-        setIsUsingFallback(true);
-        setNoticeMessage("API 연결에 실패해 굿즈 탐색 페이지는 mock 데이터로 표시 중입니다.");
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -179,7 +173,7 @@ export function GoodsExplorePage() {
   }, [totalPages]);
 
   return (
-    <main className="page-shell">
+    <main className="page-shell goods-page-shell">
       <section className="hero-panel">
         <div className="hero-copy">
           <p className="hero-eyebrow">4번 페이지 / 굿즈 탐색</p>
@@ -226,8 +220,6 @@ export function GoodsExplorePage() {
         onToggle={handleKeywordToggle}
         onReset={() => setSelectedInterestKeywords([])}
       />
-
-      {noticeMessage ? <div className="notice-banner">{noticeMessage}</div> : null}
 
       <section className="goods-layout">
         <GoodsFilterPanel
@@ -296,10 +288,6 @@ export function GoodsExplorePage() {
           ) : null}
         </section>
       </section>
-
-      {isUsingFallback ? (
-        <div className="goods-footer-note">현재 백엔드 실패 대비 fallback mock 데이터가 활성화되어 있습니다.</div>
-      ) : null}
     </main>
   );
 }
