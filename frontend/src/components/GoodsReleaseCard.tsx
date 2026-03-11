@@ -2,6 +2,7 @@ import { GOODS_PICKUP_LABELS, GOODS_RELEASE_LABELS } from "../constants/goods-op
 import { SOURCE_TYPE_LABELS } from "../constants/filter-options";
 import { formatCompactEventTimeRange } from "../utils/date";
 import { getGoodsPhotoPresentation } from "../utils/goods-media";
+import { getKeywordImage } from "../utils/keyword-images";
 import { getThumbnailPresentation } from "../utils/thumbnail";
 import type { GoodsItem } from "../types/goods";
 
@@ -14,6 +15,7 @@ export function GoodsReleaseCard({ item }: GoodsReleaseCardProps) {
   const hiddenTagCount = Math.max(0, item.tags.length - visibleTags.length);
   const thumbnail = getThumbnailPresentation(item.entityName, item.releaseType);
   const photo = getGoodsPhotoPresentation(item);
+  const previewImage = photo ? null : getKeywordImage(item.entityName);
   const thumbnailClassName = `card-thumbnail goods-card__thumbnail${photo ? " card-thumbnail--photo" : ""}`;
 
   return (

@@ -42,7 +42,7 @@ export function FilterPanel({
 
       <div className="filter-summary">
         <strong>{filteredCount}개</strong>
-        <span>현재 표시 중 / 전체 {totalCount}개</span>
+        <span>현재 {filteredCount}개</span>
       </div>
 
       <div className="filter-group">

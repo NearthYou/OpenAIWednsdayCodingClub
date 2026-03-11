@@ -5,6 +5,7 @@ import {
   loginUser,
   logoutUser,
   signupUser,
+  updateUserProfile,
   updateUserSubscriptions
 } from "./api/client";
 import { MainNavigationBar } from "./components/MainNavigationBar";
@@ -211,6 +212,19 @@ export default function App() {
     }
   }
 
+  async function handleUpdateProfile(displayName: string) {
+    if (!authSession) {
+      throw new Error("로그인 정보가 없습니다.");
+    }
+
+    const nextSession = await updateUserProfile(authSession.sessionToken, {
+      displayName
+    });
+
+    setAuthSession(nextSession);
+    return nextSession;
+  }
+
   function handleSaveSchedule(schedule: SavedScheduleItem) {
     setSavedSchedules((currentSchedules) => {
       if (currentSchedules.some((currentSchedule) => currentSchedule.id === schedule.id)) {
@@ -298,6 +312,7 @@ export default function App() {
           currentUser={authSession.user}
           savedSchedules={savedSchedules}
           onRemoveSavedSchedule={handleRemoveSavedSchedule}
+          onUpdateDisplayName={handleUpdateProfile}
         />
       ) : null}
     </div>
