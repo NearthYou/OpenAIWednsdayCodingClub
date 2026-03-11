@@ -1,5 +1,6 @@
 import { CATEGORY_LABELS, SOURCE_TYPE_LABELS } from "../constants/filter-options";
 import { formatEventTimeRange } from "../utils/date";
+import { getKeywordImage } from "../utils/keyword-images";
 import { getThumbnailPresentation } from "../utils/thumbnail";
 import type { EventItem } from "../types/event";
 
@@ -10,6 +11,7 @@ interface EventCardProps {
 
 export function EventCard({ event, onSelect }: EventCardProps) {
   const thumbnail = getThumbnailPresentation(event.entityName, event.category);
+  const previewImage = getKeywordImage(event.entityName);
   const visibleTags = event.tags.slice(0, 2);
 
   return (
@@ -17,7 +19,13 @@ export function EventCard({ event, onSelect }: EventCardProps) {
       <div className="card-thumbnail event-card__thumbnail" style={thumbnail.style}>
         <div className="card-thumbnail__overlay">
           <span className="card-thumbnail__eyebrow">{event.entityName}</span>
-          <strong className="card-thumbnail__initials">{thumbnail.initials}</strong>
+          {previewImage ? (
+            <div className="card-thumbnail__visual" aria-hidden="true">
+              <div className="card-thumbnail__preview-shell">
+                <img className="card-thumbnail__preview" src={previewImage} alt="" loading="lazy" />
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
 

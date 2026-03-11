@@ -31,7 +31,13 @@ export function GoodsReleaseCard({ item }: GoodsReleaseCardProps) {
         ) : null}
         <div className="card-thumbnail__overlay">
           <span className="card-thumbnail__eyebrow">{item.entityName}</span>
-          <strong className="card-thumbnail__initials">{thumbnail.initials}</strong>
+          {previewImage ? (
+            <div className="card-thumbnail__visual" aria-hidden="true">
+              <div className="card-thumbnail__preview-shell">
+                <img className="card-thumbnail__preview" src={previewImage} alt="" loading="lazy" />
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
 
