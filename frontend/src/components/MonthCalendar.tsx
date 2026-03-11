@@ -8,6 +8,7 @@ interface MonthCalendarProps {
   month: Date;
   events: EventItem[];
   selectedDate: string;
+  savedDateKeys: string[];
   isLoading: boolean;
   onMonthChange: (offset: number) => void;
   onDateSelect: (dateKey: string) => void;
@@ -17,11 +18,13 @@ export function MonthCalendar({
   month,
   events,
   selectedDate,
+  savedDateKeys,
   isLoading,
   onMonthChange,
   onDateSelect
 }: MonthCalendarProps) {
   const weeks = buildCalendarWeeks(month);
+  const savedDateKeySet = new Set(savedDateKeys);
 
   return (
     <section className="panel calendar-panel">
@@ -53,6 +56,7 @@ export function MonthCalendar({
           const dayEvents = events.filter((event) => getEventDateKey(event) === day.dateKey);
           const previewEvents = dayEvents.slice(0, 2);
           const isSelected = selectedDate === day.dateKey;
+          const isSavedDay = savedDateKeySet.has(day.dateKey);
 
           return (
             <button
@@ -61,6 +65,7 @@ export function MonthCalendar({
                 "calendar-day",
                 day.isCurrentMonth ? "" : "is-outside",
                 isSelected ? "is-selected" : "",
+                isSavedDay ? "is-saved" : "",
                 isToday(day.dateKey) ? "is-today" : ""
               ]
                 .filter(Boolean)

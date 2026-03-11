@@ -4,6 +4,7 @@ import { HomeKeywordSubscriptionPanel } from "../components/HomeKeywordSubscript
 import { SOURCE_TYPE_LABELS } from "../constants/filter-options";
 import { EventDetailPage } from "./EventDetailPage";
 import type { AuthSessionPayload, AuthUser } from "../types/auth";
+import type { SavedScheduleItem } from "../types/event";
 import type {
   HomeDashboardPayload,
   HomeDdaySummary,
@@ -26,7 +27,9 @@ import {
 interface HomeDashboardPageProps {
   currentUser: AuthUser;
   sessionToken: string;
+  savedSchedules: SavedScheduleItem[];
   onNavigateToCalendar: () => void;
+  onSaveSchedule: (schedule: SavedScheduleItem) => void;
   onUpdateSubscriptions: (subscriptionKeywordIds: string[]) => Promise<AuthSessionPayload>;
 }
 
@@ -49,7 +52,9 @@ function getSubscribedKeywordIds(dashboard: HomeDashboardPayload | null, current
 export function HomeDashboardPage({
   currentUser,
   sessionToken,
+  savedSchedules,
   onNavigateToCalendar,
+  onSaveSchedule,
   onUpdateSubscriptions
 }: HomeDashboardPageProps) {
   const [dashboard, setDashboard] = useState<HomeDashboardPayload | null>(null);
@@ -183,6 +188,8 @@ export function HomeDashboardPage({
         item={selectedDetailItem}
         backLabel="홈 화면으로 돌아가기"
         onBack={() => setSelectedDetailItem(null)}
+        savedSchedules={savedSchedules}
+        onSaveSchedule={onSaveSchedule}
       />
     );
   }

@@ -8,10 +8,21 @@ import { SearchBar } from "../components/SearchBar";
 import { CATEGORY_OPTIONS, SOURCE_TYPE_OPTIONS } from "../constants/filter-options";
 import { fallbackEvents, fallbackKeywords } from "../data/fallback-data";
 import { EventDetailPage } from "./EventDetailPage";
-import type { EventCategory, EventItem, InterestKeyword, SourceType } from "../types/event";
+import type {
+  EventCategory,
+  EventItem,
+  InterestKeyword,
+  SavedScheduleItem,
+  SourceType
+} from "../types/event";
 import { getDefaultSelectedDate, getEventDateKey, getMonthKey, formatMonthLabel } from "../utils/date";
 import { createDetailPageItemFromEvent } from "../utils/detail-page-item";
 import { filterEvents } from "../utils/event-filters";
+
+interface CalendarPageProps {
+  savedSchedules: SavedScheduleItem[];
+  onSaveSchedule: (schedule: SavedScheduleItem) => void;
+}
 
 function getInitialMonth() {
   const today = new Date();
@@ -35,7 +46,7 @@ function getFallbackEventsByMonth(monthKey: string) {
   return fallbackEvents.filter((event) => event.startAt.slice(0, 7) === monthKey);
 }
 
-export function CalendarPage() {
+export function CalendarPage({ savedSchedules, onSaveSchedule }: CalendarPageProps) {
   const [month, setMonth] = useState<Date>(() => getInitialMonth());
   const [selectedDate, setSelectedDate] = useState<string>(() => getDefaultSelectedDate(getInitialMonth()));
   const [searchQuery, setSearchQuery] = useState("");
@@ -156,6 +167,8 @@ export function CalendarPage() {
         item={createDetailPageItemFromEvent(selectedEvent)}
         backLabel="상세 캘린더로 돌아가기"
         onBack={() => setSelectedEvent(null)}
+        savedSchedules={savedSchedules}
+        onSaveSchedule={onSaveSchedule}
       />
     );
   }
@@ -251,6 +264,7 @@ export function CalendarPage() {
           month={month}
           events={filteredEvents}
           selectedDate={selectedDate}
+          savedDateKeys={savedSchedules.map((schedule) => schedule.dateKey)}
           isLoading={isLoading}
           onMonthChange={handleMonthChange}
           onDateSelect={setSelectedDate}

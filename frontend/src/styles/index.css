@@ -1889,6 +1889,103 @@ a {
   margin-top: auto;
 }
 
+.profile-card__description {
+  margin-bottom: 0;
+}
+
+.saved-schedule-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  align-content: start;
+}
+
+.saved-schedule-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(255, 240, 195, 0.94);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 250, 238, 0.86)),
+    rgba(255, 255, 255, 0.56);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.86),
+    0 12px 22px rgba(173, 130, 24, 0.08);
+}
+
+.saved-schedule-item__copy {
+  display: grid;
+  gap: 4px;
+}
+
+.saved-schedule-item__copy h3,
+.saved-schedule-item__copy p,
+.saved-schedule-item__copy small {
+  margin: 0;
+}
+
+.saved-schedule-item__copy h3 {
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+
+.saved-schedule-item__copy p,
+.saved-schedule-item__copy small {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.saved-schedule-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.saved-schedule-item__meta span,
+.saved-schedule-item__meta strong {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 242, 197, 0.72);
+  color: var(--accent-dark);
+  font-size: 0.76rem;
+}
+
+.saved-schedule-remove {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 12px;
+}
+
+.saved-schedule-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.saved-schedule-pagination span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.saved-schedule-pagination__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.saved-schedule-pagination__actions .text-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 @media (max-width: 1260px) {
   .top-control-grid {
     grid-template-columns: 1fr;
@@ -1923,7 +2020,6 @@ a {
   }
 
   .dashboard-grid,
-  .profile-grid,
   .search-results-grid {
     grid-template-columns: 1fr;
   }
@@ -2025,6 +2121,10 @@ a {
 
   .detail-highlight-grid {
     grid-template-columns: 1fr;
+  }
+
+  .saved-schedule-item {
+    flex-direction: column;
   }
 }
 
@@ -2254,6 +2354,34 @@ body {
   gap: 18px;
 }
 
+.profile-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-auto-flow: dense;
+  grid-auto-rows: minmax(220px, auto);
+  align-items: stretch;
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: clamp(20px, 2vw, 28px);
+}
+
+.profile-card--identity {
+  min-height: 260px;
+}
+
+.profile-card--schedule-list {
+  grid-column: span 2;
+  min-height: 260px;
+}
+
+.profile-card--preferences,
+.profile-card--subscriptions {
+  min-height: 220px;
+}
+
 .dashboard-grid {
   grid-template-columns: 1.2fr 0.8fr;
 }
@@ -2382,6 +2510,7 @@ body {
 }
 
 .calendar-day {
+  position: relative;
   min-height: 176px;
   border: 1px solid rgba(234, 217, 167, 0.88);
   border-radius: 24px;
@@ -2389,6 +2518,28 @@ body {
     linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 250, 240, 0.9)),
     rgba(255, 255, 255, 0.56);
   backdrop-filter: blur(14px);
+}
+
+.calendar-day.is-saved {
+  border-color: rgba(143, 201, 76, 0.72);
+  background:
+    radial-gradient(circle at top right, rgba(185, 229, 120, 0.24), transparent 30%),
+    radial-gradient(circle at 18% 18%, rgba(218, 244, 180, 0.58), transparent 18%),
+    linear-gradient(180deg, rgba(245, 255, 234, 0.96), rgba(251, 255, 246, 0.92)),
+    rgba(255, 255, 255, 0.62);
+}
+
+.calendar-day.is-saved::after {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(122, 191, 63, 0.94);
+  box-shadow: 0 0 0 4px rgba(220, 245, 189, 0.55);
+  content: "";
+  pointer-events: none;
 }
 
 .calendar-day__number {
@@ -2426,6 +2577,16 @@ body {
 
 .goods-page-shell {
   max-width: 1560px;
+}
+
+@media (max-width: 1180px) {
+  .profile-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .profile-card--schedule-list {
+    grid-column: span 1;
+  }
 }
 
 @media (max-width: 1260px) {

@@ -1,13 +1,21 @@
 import { useEffect, useState } from "react";
 import { fetchEventDetail, fetchEventSummary } from "../api/client";
 import { CATEGORY_LABELS, SOURCE_TYPE_LABELS } from "../constants/filter-options";
-import type { EventAiSummary, EventAiSummaryMeta, EventItem } from "../types/event";
+import type {
+  EventAiSummary,
+  EventAiSummaryMeta,
+  EventItem,
+  SavedScheduleItem
+} from "../types/event";
 import { formatEventTimeRange } from "../utils/date";
 import type { DetailPageItem } from "../utils/detail-page-item";
+import { buildSavedScheduleItem } from "../utils/saved-schedules";
 
 interface EventDetailPageProps {
   item: DetailPageItem;
   onBack: () => void;
+  savedSchedules: SavedScheduleItem[];
+  onSaveSchedule: (schedule: SavedScheduleItem) => void;
   backLabel?: string;
 }
 
@@ -171,50 +179,6 @@ function buildGenericSummary(item: DetailPageItem): EventAiSummary {
   };
 }
 
-function escapeIcsText(value: string) {
-  return value
-    .replace(/\\/g, "\\\\")
-    .replace(/\r?\n/g, "\\n")
-    .replace(/,/g, "\\,")
-    .replace(/;/g, "\\;");
-}
-
-function toIcsTimestamp(value: string) {
-  return new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
-}
-
-function createIcsFile(item: DetailPageItem, eventData: EventItem | null) {
-  const title = eventData?.title || item.title;
-  const startAt = eventData?.startAt || item.startAt;
-  const endAt =
-    eventData?.endAt ||
-    item.endAt ||
-    (startAt ? new Date(new Date(startAt).getTime() + 60 * 60 * 1000).toISOString() : null);
-  const description = [item.summary, `출처: ${eventData?.sourceName || item.sourceName}`, item.sourceUrl]
-    .filter(Boolean)
-    .join("\n");
-
-  if (!startAt || !endAt) {
-    return null;
-  }
-
-  return [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//DucktongSago//Calendar//KO",
-    "BEGIN:VEVENT",
-    `UID:${item.id}@ducktongsago.local`,
-    `DTSTAMP:${toIcsTimestamp(new Date().toISOString())}`,
-    `DTSTART:${toIcsTimestamp(startAt)}`,
-    `DTEND:${toIcsTimestamp(endAt)}`,
-    `SUMMARY:${escapeIcsText(title)}`,
-    `DESCRIPTION:${escapeIcsText(description)}`,
-    `URL:${item.sourceUrl}`,
-    "END:VEVENT",
-    "END:VCALENDAR"
-  ].join("\r\n");
-}
-
 async function copyText(value: string) {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(value);
@@ -235,6 +199,8 @@ async function copyText(value: string) {
 export function EventDetailPage({
   item,
   onBack,
+  savedSchedules,
+  onSaveSchedule,
   backLabel = "이전 화면으로 돌아가기"
 }: EventDetailPageProps) {
   const [eventData, setEventData] = useState<EventItem | null>(item.eventData);
@@ -246,7 +212,6 @@ export function EventDetailPage({
   const [isSummaryLoading, setIsSummaryLoading] = useState(Boolean(item.eventData));
   const [isLiked, setIsLiked] = useState(false);
   const [actionMessage, setActionMessage] = useState("");
-  const [isCalendarAdded, setIsCalendarAdded] = useState(false);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
 
   useEffect(() => {
@@ -256,7 +221,6 @@ export function EventDetailPage({
     setEventError("");
     setIsLiked(false);
     setActionMessage("");
-    setIsCalendarAdded(false);
     setIsLinkCopied(false);
 
     if (item.eventData || !item.sourceEventId) {
@@ -360,6 +324,10 @@ export function EventDetailPage({
   const resolvedEndAt = eventData?.endAt || item.endAt;
   const resolvedTags = eventData?.tags.length ? eventData.tags : item.tags;
   const resolvedVenueGuide = eventData ? getVenueGuide(eventData) : item.venueGuide;
+  const savedSchedule = buildSavedScheduleItem(item, eventData);
+  const isCalendarAdded = savedSchedule
+    ? savedSchedules.some((currentSchedule) => currentSchedule.id === savedSchedule.id)
+    : false;
 
   const fallbackSummary = eventData ? buildFallbackSummary(eventData) : buildGenericSummary(item);
   const activeSummary = aiSummary || fallbackSummary;
@@ -401,23 +369,18 @@ export function EventDetailPage({
   }
 
   function handleAddToCalendar() {
-    const icsFile = createIcsFile(item, eventData);
-
-    if (!icsFile) {
+    if (!savedSchedule) {
       setActionMessage("캘린더에 추가할 수 있는 날짜 정보가 아직 부족합니다.");
       return;
     }
 
-    const blob = new Blob([icsFile], { type: "text/calendar;charset=utf-8" });
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = downloadUrl;
-    anchor.download = `${resolvedTitle.replace(/[\\/:*?"<>|]/g, "-") || "event"}.ics`;
-    anchor.click();
-    window.URL.revokeObjectURL(downloadUrl);
+    if (isCalendarAdded) {
+      setActionMessage("이미 내 일정에 저장해 두었어요.");
+      return;
+    }
 
-    setIsCalendarAdded(true);
-    setActionMessage("내 캘린더에 추가할 수 있는 파일을 내려받았어요.");
+    onSaveSchedule(savedSchedule);
+    setActionMessage("상세 캘린더와 마이 페이지 내 일정에 표시했어요.");
   }
 
   async function handleCopyLink() {
@@ -549,22 +512,14 @@ export function EventDetailPage({
 
         <aside className="panel detail-action-panel">
           <div className="detail-panel__header">
-            <div>
-              <p className="section-eyebrow">액션</p>
-              <h2 className="section-title">다음에 할 일</h2>
-            </div>
+            <p className="section-eyebrow">액션</p>
           </div>
-
-          <p className="detail-action-copy">
-            이 화면에서 캘린더 저장, 좋아요, 링크 복사를 먼저 끝낸 뒤 마지막에 외부 사이트로 이동할 수
-            있게 정리했습니다.
-          </p>
 
           <div className="detail-action-primary">
             <button className="detail-primary-button" type="button" onClick={handleAddToCalendar}>
-              {isCalendarAdded ? "캘린더 추가 완료" : "내 캘린더 추가"}
+              {isCalendarAdded ? "내 일정에 저장됨" : "내 캘린더 추가"}
             </button>
-            <span>선택한 일정 정보를 `.ics` 파일로 내려받아 개인 캘린더에 바로 넣을 수 있습니다.</span>
+            <span>저장한 일정은 상세 캘린더 날짜 표시와 마이 페이지의 내 일정 목록에 함께 반영됩니다.</span>
           </div>
 
           <div className="detail-action-grid">
