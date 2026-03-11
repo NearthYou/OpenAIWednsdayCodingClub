@@ -69,11 +69,13 @@ export function MyProfilePage({
       <section className="profile-grid">
         <article className="panel profile-card profile-card--identity">
           <p className="section-eyebrow">프로필</p>
-          <h1 className="hero-title">{currentUser.displayName}님</h1>
-          <p className="hero-description">{currentUser.email}</p>
-          <div className="profile-card__meta">
-            <span>사용자 ID</span>
-            <strong>{currentUser.id}</strong>
+          <div className="profile-card__identity-block">
+            <h1 className="hero-title profile-card__name">{currentUser.displayName}님</h1>
+            <p className="hero-description profile-card__email">{currentUser.email}</p>
+          </div>
+          <div className="profile-card__intro">
+            <strong>오늘도 좋아하는 마음을 놓치지 않도록</strong>
+            <span>캘린더와 내 일정에 이번 달의 설렘을 차곡차곡 모아두고 있어요.</span>
           </div>
         </article>
 

@@ -698,6 +698,25 @@ a {
   filter: drop-shadow(0 18px 28px rgba(117, 137, 69, 0.16));
 }
 
+.calendar-page-shell .hero-panel {
+  grid-template-columns: minmax(0, 1.16fr) 420px;
+  align-items: center;
+}
+
+.calendar-page-shell .hero-copy {
+  max-width: none;
+}
+
+.calendar-page-shell .hero-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.calendar-page-shell .hero-stat-card {
+  min-height: 152px;
+}
+
+
 .goods-hero__quote {
   max-width: 14ch;
   font-family: "Gowun Batang", var(--font-display);
@@ -752,6 +771,39 @@ a {
   max-width: 260px;
   height: auto;
   filter: drop-shadow(0 18px 28px rgba(154, 120, 47, 0.16));
+}
+
+.goods-page-shell .hero-panel {
+  grid-template-columns: minmax(0, 1.18fr) 420px;
+  gap: 16px;
+  align-items: center;
+}
+
+.goods-page-shell .hero-copy {
+  max-width: none;
+}
+
+.goods-page-shell .hero-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.goods-page-shell .hero-stat-card {
+  min-height: 132px;
+}
+
+.goods-page-shell .goods-hero__stage {
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 16px;
+}
+
+.goods-page-shell .goods-hero__art-card {
+  min-height: 248px;
+  padding: 14px;
+}
+
+.goods-page-shell .goods-hero__art-image {
+  max-width: 220px;
 }
 
 .home-hero__shuffle-button {
@@ -1229,6 +1281,69 @@ a {
 .deadline-card__keyword {
   display: inline-flex;
   margin-bottom: 8px;
+}
+
+.deadline-card__topline {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.deadline-card__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.deadline-card--notice {
+  border-color: rgba(230, 192, 176, 0.88);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 246, 0.98), rgba(255, 244, 239, 0.94)),
+    rgba(255, 255, 255, 0.94);
+}
+
+.deadline-card--warning {
+  border-color: rgba(223, 164, 145, 0.92);
+  background:
+    linear-gradient(180deg, rgba(255, 247, 243, 0.98), rgba(255, 236, 230, 0.95)),
+    rgba(255, 255, 255, 0.94);
+}
+
+.deadline-card--urgent {
+  border-color: rgba(214, 143, 129, 0.96);
+  background:
+    linear-gradient(180deg, rgba(255, 243, 240, 0.99), rgba(255, 228, 222, 0.96)),
+    rgba(255, 255, 255, 0.94);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    0 16px 30px rgba(191, 109, 96, 0.12);
+}
+
+.deadline-card--notice .deadline-card__keyword,
+.deadline-card--warning .deadline-card__keyword,
+.deadline-card--urgent .deadline-card__keyword {
+  color: #9c5c4d;
+}
+
+.deadline-card--notice .deadline-card__badge {
+  background: rgba(214, 143, 129, 0.12);
+  color: #9c5c4d;
+}
+
+.deadline-card--warning .deadline-card__badge {
+  background: rgba(214, 143, 129, 0.18);
+  color: #954a3e;
+}
+
+.deadline-card--urgent .deadline-card__badge {
+  background: rgba(214, 143, 129, 0.24);
+  color: #8f3f34;
 }
 
 .search-result-group + .search-result-group {
@@ -2284,6 +2399,14 @@ a {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .goods-page-shell .hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .calendar-page-shell .hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .home-hero__quote {
     max-width: none;
   }
@@ -2387,6 +2510,14 @@ a {
   }
 
   .hero-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .goods-page-shell .hero-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-page-shell .hero-stats {
     grid-template-columns: 1fr;
   }
 

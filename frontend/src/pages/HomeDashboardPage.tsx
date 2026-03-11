@@ -46,6 +46,37 @@ const SOURCE_SCOPE_LABELS: Record<HomeSearchSourceScope, string> = {
   web: "웹 최신"
 };
 
+function getClosingSoonTone(closingAt: string) {
+  const remainingHours = (new Date(closingAt).getTime() - Date.now()) / (1000 * 60 * 60);
+
+  if (remainingHours <= 24) {
+    return "urgent";
+  }
+
+  if (remainingHours <= 72) {
+    return "warning";
+  }
+
+  return "notice";
+}
+
+function getClosingSoonBadgeLabel(closingAt: string) {
+  const now = Date.now();
+  const remainingMs = new Date(closingAt).getTime() - now;
+  const remainingHours = remainingMs / (1000 * 60 * 60);
+
+  if (remainingHours <= 0) {
+    return "마감 지남";
+  }
+
+  if (remainingHours <= 24) {
+    return "오늘 마감";
+  }
+
+  const remainingDays = Math.ceil(remainingHours / 24);
+  return `D-${remainingDays}`;
+}
+
 const HOME_HERO_QUOTES = [
   {
     lead: "덕질은 계획적으로 시작되지 않는다.",
@@ -488,10 +519,13 @@ export function HomeDashboardPage({
                   {dashboard.closingSoonItems.map((item) => (
                     <button
                       key={item.id}
-                      className="deadline-card dashboard-card-button"
+                      className={`deadline-card deadline-card--${getClosingSoonTone(item.closingAt)} dashboard-card-button`}
                       type="button"
                       onClick={() => openDetailFromClosingSoon(item)}
                     >
+                      <div className="deadline-card__topline">
+                        <span className="deadline-card__badge">{getClosingSoonBadgeLabel(item.closingAt)}</span>
+                      </div>
                       <div>
                         <span className="deadline-card__keyword">{item.keywordLabel}</span>
                         <h3>{item.title}</h3>
