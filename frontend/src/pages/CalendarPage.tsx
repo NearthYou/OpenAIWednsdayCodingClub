@@ -182,14 +182,16 @@ export function CalendarPage() {
         </div>
       </section>
 
-      <SearchBar value={searchQuery} onChange={setSearchQuery} />
+      <section className="top-control-grid">
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
-      <KeywordSubscriptionChips
-        keywords={interestKeywords}
-        selectedKeywords={selectedInterestKeywords}
-        onToggle={handleKeywordToggle}
-        onReset={() => setSelectedInterestKeywords([])}
-      />
+        <KeywordSubscriptionChips
+          keywords={interestKeywords}
+          selectedKeywords={selectedInterestKeywords}
+          onToggle={handleKeywordToggle}
+          onReset={() => setSelectedInterestKeywords([])}
+        />
+      </section>
 
       {noticeMessage ? <div className="notice-banner">{noticeMessage}</div> : null}
 

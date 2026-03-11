@@ -32,9 +32,15 @@ body {
   font-family: "IBM Plex Sans KR", "Noto Sans KR", sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(76, 139, 120, 0.1), transparent 28%),
-    radial-gradient(circle at top right, var(--bg-accent), transparent 34%),
-    linear-gradient(180deg, #f8f2e9 0%, #efe6d8 100%);
+    radial-gradient(circle at 12% 14%, rgba(76, 139, 120, 0.18), transparent 16%),
+    radial-gradient(circle at 88% 10%, rgba(212, 159, 75, 0.16), transparent 18%),
+    radial-gradient(circle at 78% 32%, rgba(184, 109, 143, 0.12), transparent 16%),
+    radial-gradient(circle at 18% 82%, rgba(207, 105, 69, 0.12), transparent 20%),
+    linear-gradient(rgba(255, 255, 255, 0.24) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24) 1px, transparent 1px),
+    linear-gradient(180deg, #fbf5ec 0%, #efe3d2 100%);
+  background-size: auto, auto, auto, auto, 34px 34px, 34px 34px, auto;
+  background-position: center, center, center, center, top left, top left, center;
 }
 
 button,
@@ -51,9 +57,46 @@ a {
 }
 
 .page-shell {
-  max-width: 1520px;
+  position: relative;
+  max-width: 1660px;
   margin: 0 auto;
   padding: 32px 24px 48px;
+}
+
+.page-shell::before,
+.page-shell::after {
+  position: fixed;
+  z-index: -1;
+  border-radius: 999px;
+  pointer-events: none;
+  content: "";
+  filter: blur(4px);
+}
+
+.page-shell::before {
+  top: 88px;
+  left: 28px;
+  width: 240px;
+  height: 240px;
+  background:
+    radial-gradient(circle at 28% 30%, rgba(255, 255, 255, 0.75) 0 14px, transparent 15px),
+    radial-gradient(circle at 66% 24%, rgba(76, 139, 120, 0.18) 0 30px, transparent 31px),
+    radial-gradient(circle at 56% 70%, rgba(207, 105, 69, 0.16) 0 38px, transparent 39px),
+    radial-gradient(circle at 22% 72%, rgba(212, 159, 75, 0.2) 0 22px, transparent 23px);
+  opacity: 0.9;
+}
+
+.page-shell::after {
+  right: 34px;
+  bottom: 54px;
+  width: 280px;
+  height: 280px;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(184, 109, 143, 0.16) 0 34px, transparent 35px),
+    radial-gradient(circle at 70% 26%, rgba(255, 255, 255, 0.75) 0 12px, transparent 13px),
+    radial-gradient(circle at 54% 66%, rgba(76, 139, 120, 0.14) 0 52px, transparent 53px),
+    radial-gradient(circle at 24% 78%, rgba(212, 159, 75, 0.18) 0 26px, transparent 27px);
+  opacity: 0.85;
 }
 
 .panel {
@@ -64,10 +107,11 @@ a {
 }
 
 .hero-panel {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 28px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) 320px;
+  gap: 20px;
+  align-items: stretch;
+  padding: 30px;
 }
 
 .hero-copy {
@@ -99,7 +143,6 @@ a {
 
 .hero-stats {
   display: grid;
-  min-width: 300px;
   gap: 12px;
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
@@ -125,8 +168,16 @@ a {
 
 .search-panel,
 .keyword-panel {
-  margin-top: 18px;
   padding: 20px 24px;
+  height: 100%;
+}
+
+.top-control-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(360px, 0.8fr);
+  gap: 18px;
+  align-items: stretch;
+  margin-top: 18px;
 }
 
 .search-panel__header,
@@ -260,16 +311,26 @@ a {
 
 .calendar-layout {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr) 390px;
-  gap: 20px;
-  align-items: start;
-  margin-top: 20px;
+  grid-template-columns: 248px minmax(0, 1.7fr) 340px;
+  gap: 18px;
+  align-items: stretch;
+  margin-top: 22px;
 }
 
 .filter-panel,
 .calendar-panel,
 .event-list-panel {
   padding: 22px;
+}
+
+.filter-panel,
+.event-list-panel {
+  min-height: 100%;
+}
+
+.calendar-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 250, 242, 0.98) 0%, rgba(251, 243, 234, 0.94) 100%);
 }
 
 .filter-summary {
@@ -302,6 +363,11 @@ a {
 .filter-option-list {
   display: grid;
   gap: 10px;
+}
+
+.filter-panel {
+  background:
+    linear-gradient(180deg, rgba(248, 243, 234, 0.98) 0%, rgba(255, 250, 242, 0.92) 100%);
 }
 
 .filter-option {
@@ -350,8 +416,8 @@ a {
 }
 
 .calendar-day {
-  min-height: 130px;
-  padding: 12px;
+  min-height: 168px;
+  padding: 14px;
   border: 1px solid rgba(207, 190, 167, 0.8);
   border-radius: 18px;
   background: #fff;
@@ -401,8 +467,8 @@ a {
 .calendar-day__events {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 14px;
 }
 
 .calendar-day__empty {
@@ -414,10 +480,13 @@ a {
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
-  padding: 5px 9px;
+  max-width: 100%;
+  padding: 6px 10px;
   border-radius: 999px;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .calendar-mini-chip--official {
@@ -443,6 +512,11 @@ a {
 .event-list-panel__count {
   color: var(--text-muted);
   font-size: 0.92rem;
+}
+
+.event-list-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 250, 242, 0.98) 0%, rgba(247, 238, 227, 0.94) 100%);
 }
 
 .event-list {
@@ -741,8 +815,12 @@ a {
 }
 
 @media (max-width: 1260px) {
+  .top-control-grid {
+    grid-template-columns: 1fr;
+  }
+
   .calendar-layout {
-    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-columns: 240px minmax(0, 1fr);
   }
 
   .event-list-panel {
@@ -774,7 +852,8 @@ a {
   }
 
   .hero-panel,
-  .calendar-layout {
+  .calendar-layout,
+  .top-control-grid {
     grid-template-columns: 1fr;
     display: grid;
   }
@@ -815,7 +894,7 @@ a {
   }
 
   .calendar-day {
-    min-height: 110px;
+    min-height: 122px;
     padding: 10px;
   }
 
