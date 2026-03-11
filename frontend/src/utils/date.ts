@@ -79,6 +79,23 @@ export function formatEventTimeRange(startAt: string, endAt?: string) {
   return `${dateLabel} ${timeLabel} - ${endTimeLabel}`;
 }
 
+export function formatShortDateLabel(isoDateTime: string) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "short",
+    day: "numeric"
+  }).format(new Date(isoDateTime));
+}
+
+export function formatShortDateTime(isoDateTime: string) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).format(new Date(isoDateTime));
+}
+
 export function buildCalendarWeeks(monthDate: Date) {
   const firstDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const firstGridDay = new Date(firstDayOfMonth);
