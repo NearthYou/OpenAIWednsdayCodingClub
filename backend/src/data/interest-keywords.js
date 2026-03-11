@@ -2,6 +2,8 @@ const interestKeywords = [
   { id: "keyword-ive", label: "아이브", group: "연예인" },
   { id: "keyword-lesserafim", label: "르세라핌", group: "연예인" },
   { id: "keyword-aespa", label: "에스파", group: "연예인" },
+  { id: "keyword-infinite", label: "인피니트", group: "연예인" },
+  { id: "keyword-vixx", label: "빅스", group: "연예인" },
   { id: "keyword-bluearchive", label: "블루아카", group: "애니 / 게임" },
   { id: "keyword-genshin", label: "원신", group: "애니 / 게임" },
   { id: "keyword-starrail", label: "붕괴: 스타레일", group: "애니 / 게임" },

@@ -9,7 +9,7 @@ import { CATEGORY_OPTIONS, SOURCE_TYPE_OPTIONS } from "../constants/filter-optio
 import { fallbackEvents, fallbackKeywords } from "../data/fallback-data";
 import { EventDetailPage } from "./EventDetailPage";
 import type { EventCategory, EventItem, InterestKeyword, SourceType } from "../types/event";
-import { getDefaultSelectedDate, getEventDateKey, getMonthKey, formatMonthLabel } from "../utils/date";
+import { getDefaultSelectedDate, getEventDateKey, getMonthKey } from "../utils/date";
 import { createDetailPageItemFromEvent } from "../utils/detail-page-item";
 import { filterEvents } from "../utils/event-filters";
 
@@ -94,7 +94,7 @@ export function CalendarPage() {
         }
 
         setFetchedEvents(getFallbackEventsByMonth(monthKey));
-        setNoticeMessage("API 연결에 실패해 mock 데이터로 계속 진행 중입니다.");
+        setNoticeMessage("API 연결이 불안정해 mock 데이터로 계속 보여주고 있습니다.");
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -154,7 +154,7 @@ export function CalendarPage() {
     return (
       <EventDetailPage
         item={createDetailPageItemFromEvent(selectedEvent)}
-        backLabel="상세 캘린더로 돌아가기"
+        backLabel="캘린더로 돌아가기"
         onBack={() => setSelectedEvent(null)}
       />
     );
@@ -203,36 +203,24 @@ export function CalendarPage() {
 
   return (
     <main className="page-shell calendar-page-shell">
-      <section className="hero-panel">
+      <section className="hero-panel hero-panel--compact">
         <div className="hero-copy">
-          <h1 className="hero-title">공식 일정부터 팬 이벤트까지 한 화면에서 보는 일정 캘린더</h1>
-          <p className="hero-description">
-            관심 키워드, 검색어, 출처 유형을 조합해서 월간 일정과 선택 날짜 리스트를 동시에 확인할 수 있습니다.
-          </p>
-        </div>
-
-        <div className="hero-stats">
-          <div className="hero-stat-card">
-            <span>현재 월</span>
-            <strong>{formatMonthLabel(month)}</strong>
-          </div>
-          <div className="hero-stat-card">
-            <span>표시 일정</span>
-            <strong>{filteredEvents.length}개</strong>
-          </div>
+          <p className="section-eyebrow">캘린더</p>
+          <h1 className="hero-title">관심 일정만 골라 보는 팬 캘린더</h1>
+          <p className="hero-description">검색과 필터를 먼저 고르고, 날짜를 눌러 필요한 일정만 확인하세요.</p>
         </div>
       </section>
 
-      <section className="top-control-grid">
+      <section className="top-control-grid top-control-grid--single">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
-
-        <KeywordSubscriptionChips
-          keywords={interestKeywords}
-          selectedKeywords={selectedInterestKeywords}
-          onToggle={handleKeywordToggle}
-          onReset={() => setSelectedInterestKeywords([])}
-        />
       </section>
+
+      <KeywordSubscriptionChips
+        keywords={interestKeywords}
+        selectedKeywords={selectedInterestKeywords}
+        onToggle={handleKeywordToggle}
+        onReset={() => setSelectedInterestKeywords([])}
+      />
 
       {noticeMessage ? <div className="notice-banner">{noticeMessage}</div> : null}
 

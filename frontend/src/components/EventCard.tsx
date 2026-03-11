@@ -1,5 +1,6 @@
 import { CATEGORY_LABELS, SOURCE_TYPE_LABELS } from "../constants/filter-options";
 import { formatEventTimeRange } from "../utils/date";
+import { getThumbnailPresentation } from "../utils/thumbnail";
 import type { EventItem } from "../types/event";
 
 interface EventCardProps {
@@ -8,8 +9,18 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, onSelect }: EventCardProps) {
+  const thumbnail = getThumbnailPresentation(event.entityName, event.category);
+  const visibleTags = event.tags.slice(0, 2);
+
   return (
     <article className={["event-card", onSelect ? "is-interactive" : ""].filter(Boolean).join(" ")}>
+      <div className="card-thumbnail event-card__thumbnail" style={thumbnail.style}>
+        <div className="card-thumbnail__overlay">
+          <span className="card-thumbnail__eyebrow">{event.entityName}</span>
+          <strong className="card-thumbnail__initials">{thumbnail.initials}</strong>
+        </div>
+      </div>
+
       <div className="event-card__meta">
         <span className={`status-badge status-badge--${event.sourceType}`}>
           {SOURCE_TYPE_LABELS[event.sourceType]}
@@ -19,7 +30,6 @@ export function EventCard({ event, onSelect }: EventCardProps) {
 
       <div className="event-card__content">
         <h3 className="event-card__title">{event.title}</h3>
-        <p className="event-card__entity">{event.entityName}</p>
       </div>
 
       <dl className="event-card__details">
@@ -38,11 +48,14 @@ export function EventCard({ event, onSelect }: EventCardProps) {
       </dl>
 
       <div className="tag-list">
-        {event.tags.map((tag) => (
+        {visibleTags.map((tag) => (
           <span key={`${event.id}-${tag}`} className="tag-chip">
             #{tag}
           </span>
         ))}
+        {event.tags.length > visibleTags.length ? (
+          <span className="tag-chip">+{event.tags.length - visibleTags.length}</span>
+        ) : null}
       </div>
 
       {onSelect ? (
