@@ -133,8 +133,8 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   background:
-    radial-gradient(circle at top right, rgba(207, 105, 69, 0.08), transparent 28%),
-    #fff;
+    radial-gradient(circle at top right, rgba(17, 17, 17, 0.06), transparent 22%),
+    rgba(255, 255, 255, 0.96);
   overflow: hidden;
 }
 
