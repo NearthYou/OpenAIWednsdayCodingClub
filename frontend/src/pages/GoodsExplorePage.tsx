@@ -1,5 +1,6 @@
 import { useDeferredValue, useEffect, useState } from "react";
 import { fetchGoods, fetchKeywords } from "../api/client";
+import goodsHeroScene from "../assets/goods-hero-scene.svg";
 import { GoodsFilterPanel } from "../components/GoodsFilterPanel";
 import { GoodsReleaseCard } from "../components/GoodsReleaseCard";
 import { KeywordSubscriptionChips } from "../components/KeywordSubscriptionChips";
@@ -191,11 +192,19 @@ export function GoodsExplorePage() {
     <main className="page-shell goods-page-shell">
       <section className="hero-panel">
         <div className="hero-copy">
-          <h1 className="hero-title">예약, 현장 판매, 재입고를 한 화면에서 찾는 굿즈 탐색 페이지</h1>
-          <p className="hero-description">
-            메인 캘린더 구조를 유지하면서도 굿즈 발매 흐름에 맞게 카드형 탐색 화면으로 분리했습니다.
-            판매 방식, 출처 유형, 관심 키워드를 조합해 이번 달 굿즈 오픈 일정을 빠르게 추릴 수 있습니다.
-          </p>
+          <div className="goods-hero__stage">
+            <div className="goods-hero__copy">
+              <p className="hero-eyebrow">굿즈 탐색</p>
+              <h1 className="hero-title goods-hero__quote">마음이 먼저 반응한 굿즈는 결국 오래 기억에 남는다.</h1>
+              <p className="hero-description goods-hero__quote-body">
+                예약 시작의 두근거림부터 재입고를 기다리는 조용한 집착까지, 갖고 싶은 순간들을 한 화면에 모았습니다.
+              </p>
+            </div>
+
+            <div className="goods-hero__art-card" aria-hidden="true">
+              <img src={goodsHeroScene} alt="" className="goods-hero__art-image" />
+            </div>
+          </div>
         </div>
 
         <div className="hero-stats">

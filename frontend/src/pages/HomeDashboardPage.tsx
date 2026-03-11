@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { fetchHomeDashboard, searchHomeFeed } from "../api/client";
+import heroFandomScene from "../assets/hero-fandom-scene.svg";
 import { HomeKeywordSubscriptionPanel } from "../components/HomeKeywordSubscriptionPanel";
 import { SOURCE_TYPE_LABELS } from "../constants/filter-options";
 import { EventDetailPage } from "./EventDetailPage";
@@ -45,6 +46,43 @@ const SOURCE_SCOPE_LABELS: Record<HomeSearchSourceScope, string> = {
   web: "웹 최신"
 };
 
+const HOME_HERO_QUOTES = [
+  {
+    lead: "덕질은 계획적으로 시작되지 않는다.",
+    body: "어느 날 갑자기 찾아오는 교통사고처럼 시작된다."
+  },
+  {
+    lead: "입덕은 순간이고, 덕질은 생활이 된다.",
+    body: "한 번 마음에 들어오면 일상 시간표가 조용히 다시 짜인다."
+  },
+  {
+    lead: "좋아하는 마음은 늘 예고 없이 커진다.",
+    body: "그래서 덕질은 준비보다 발견에 더 가깝다."
+  },
+  {
+    lead: "한 장면에 흔들리고 한 문장에 오래 머문다.",
+    body: "덕질은 결국 좋아하는 것을 기억하는 방식이다."
+  },
+  {
+    lead: "오늘의 관심이 내일의 일정표를 만든다.",
+    body: "좋아하는 사람을 따라가다 보면 계획도 자연스럽게 생긴다."
+  }
+];
+
+function getRandomQuoteIndex(exceptIndex?: number) {
+  if (HOME_HERO_QUOTES.length <= 1) {
+    return 0;
+  }
+
+  let nextIndex = Math.floor(Math.random() * HOME_HERO_QUOTES.length);
+
+  while (nextIndex === exceptIndex) {
+    nextIndex = Math.floor(Math.random() * HOME_HERO_QUOTES.length);
+  }
+
+  return nextIndex;
+}
+
 function getSubscribedKeywordIds(dashboard: HomeDashboardPayload | null, currentUser: AuthUser) {
   return dashboard?.subscribedKeywords.map((keyword) => keyword.id) || currentUser.subscriptionKeywordIds;
 }
@@ -68,6 +106,7 @@ export function HomeDashboardPage({
   const [searchErrorMessage, setSearchErrorMessage] = useState("");
   const [hideUnsubscribedSearchKeywords, setHideUnsubscribedSearchKeywords] = useState(true);
   const [selectedDetailItem, setSelectedDetailItem] = useState<DetailPageItem | null>(null);
+  const [heroQuoteIndex, setHeroQuoteIndex] = useState(() => getRandomQuoteIndex());
   const searchSectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -202,20 +241,34 @@ export function HomeDashboardPage({
   const visibleRelatedKeywords = (searchResult?.relatedKeywords || []).filter(
     (keyword) => !hideUnsubscribedSearchKeywords || keyword.isSubscribed
   );
+  const heroQuote = HOME_HERO_QUOTES[heroQuoteIndex];
 
   return (
     <main className="page-shell home-page">
       <section className="panel home-hero">
         <div className="home-hero__copy">
-          <p className="hero-eyebrow">메인 홈</p>
-          <h1 className="hero-title">{currentUser.displayName}님을 위한 덕질 홈 대시보드</h1>
-          <p className="hero-description">
-            상세 캘린더에 저장된 일정과 홈 검색, 웹 최신 기사까지 한 화면에서 확인할 수 있습니다. 홈에서
-            바로 구독 키워드를 바꾸고, 오늘 챙겨야 할 일정만 빠르게 체크할 수 있게 구성했습니다.
-          </p>
+          <div className="home-hero__quote-stage">
+            <div className="home-hero__quote-copy">
+              <p className="hero-eyebrow">오늘의 덕질 문장</p>
+              <h1 className="hero-title home-hero__quote">{heroQuote.lead}</h1>
+              <p className="hero-description home-hero__quote-body">{heroQuote.body}</p>
+            </div>
+
+            <div className="home-hero__art-card" aria-hidden="true">
+              <img src={heroFandomScene} alt="" className="home-hero__art-image" />
+            </div>
+          </div>
+
           <div className="home-hero__actions">
             <button className="auth-submit-button" type="button" onClick={onNavigateToCalendar}>
               상세 캘린더 보기
+            </button>
+            <button
+              className="text-button home-hero__shuffle-button"
+              type="button"
+              onClick={() => setHeroQuoteIndex((currentIndex) => getRandomQuoteIndex(currentIndex))}
+            >
+              다른 문장 보기
             </button>
             <button
               className="text-button home-hero__search-button"

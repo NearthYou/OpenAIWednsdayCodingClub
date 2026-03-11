@@ -1,5 +1,6 @@
 import { useDeferredValue, useEffect, useState } from "react";
 import { fetchEvents, fetchKeywords } from "../api/client";
+import calendarHeroScene from "../assets/calendar-hero-scene.svg";
 import { EventList } from "../components/EventList";
 import { FilterPanel } from "../components/FilterPanel";
 import { KeywordSubscriptionChips } from "../components/KeywordSubscriptionChips";
@@ -15,7 +16,7 @@ import type {
   SavedScheduleItem,
   SourceType
 } from "../types/event";
-import { getDefaultSelectedDate, getEventDateKey, getMonthKey } from "../utils/date";
+import { getDefaultSelectedDate, getEventDateKey, getMonthKey, formatMonthLabel } from "../utils/date";
 import { createDetailPageItemFromEvent } from "../utils/detail-page-item";
 import { filterEvents } from "../utils/event-filters";
 
@@ -218,9 +219,31 @@ export function CalendarPage({ savedSchedules, onSaveSchedule }: CalendarPagePro
     <main className="page-shell calendar-page-shell">
       <section className="hero-panel hero-panel--compact">
         <div className="hero-copy">
-          <p className="section-eyebrow">캘린더</p>
-          <h1 className="hero-title">관심 일정만 골라 보는 팬 캘린더</h1>
-          <p className="hero-description">검색과 필터를 먼저 고르고, 날짜를 눌러 필요한 일정만 확인하세요.</p>
+          <div className="calendar-hero__stage">
+            <div className="calendar-hero__copy">
+              <p className="hero-eyebrow">상세 캘린더</p>
+              <h1 className="hero-title calendar-hero__quote">좋아하는 마음은 지나가도, 기다리는 날짜는 남는다.</h1>
+              <p className="hero-description calendar-hero__quote-body">
+                보고 싶은 순간을 놓치지 않도록, 이번 달의 설렘을 한 장의 달력 위에 차분히 모아두었습니다.
+              </p>
+            </div>
+
+            <div className="calendar-hero__art-card" aria-hidden="true">
+              <img src={calendarHeroScene} alt="" className="calendar-hero__art-image" />
+            </div>
+          </div>
+        </div>
+
+        <div className="hero-stats">
+          <div className="hero-stat-card">
+            <span>현재 월</span>
+            <strong>{formatMonthLabel(month)}</strong>
+          </div>
+          <div className="hero-stat-card">
+              <span>표시 일정</span>
+              <strong>{filteredEvents.length}개</strong>
+            </div>
+          </div>
         </div>
       </section>
 
